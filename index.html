@@ -6,6 +6,10 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+* {
+  box-sizing: border-box;
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -17,25 +21,26 @@ body {
   background-size: cover;
   background-position: center;
   color: white;
+  overflow-x: hidden;
 }
 
 .overlay {
   background: rgba(0,0,0,0.6);
   min-height: 100%;
-  padding: 30px;
-  box-sizing: border-box;
+  padding: 20px;
 }
 
 h1 {
   text-align: center;
-  font-size: 48px;
-  margin-bottom: 30px;
+  font-size: 44px;
+  margin: 20px 0 30px 0;
 }
 
 .box {
+  width: 100%;
   max-width: 800px;
   margin: 0 auto 25px auto;
-  background: rgba(255,255,255,0.1);
+  background: rgba(255,255,255,0.12);
   padding: 15px;
   border-radius: 12px;
 }
@@ -61,7 +66,7 @@ button {
 
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
   gap: 15px;
   margin-top: 15px;
 }
@@ -81,8 +86,8 @@ button {
 }
 
 .tile img {
-  width: 48px;
-  height: 48px;
+  width: 46px;
+  height: 46px;
   pointer-events: none;
 }
 
@@ -102,10 +107,10 @@ button {
   cursor: pointer;
 }
 
-/* kleine Einstellungen unten */
 .settings {
+  width: 100%;
   max-width: 800px;
-  margin: 40px auto 0 auto;
+  margin: 35px auto 0 auto;
   font-size: 13px;
   opacity: 0.75;
 }
@@ -122,7 +127,7 @@ button {
 
 <h1>Beginpage</h1>
 
-<!-- Google Suche -->
+<!-- Suche -->
 <div class="box">
   <form onsubmit="searchGoogle(); return false;">
     <input id="search" placeholder="Mit deiner 1. Suche beginnen">
@@ -136,25 +141,19 @@ button {
 
   <input type="file" id="iconInput" class="hidden-file" accept="image/*">
 
-  <button onclick="document.getElementById('iconInput').click()">
-    Icon auswählen (optional)
-  </button>
-
+  <button onclick="iconInput.click()">Icon auswählen (optional)</button>
   <button onclick="addUrl()">Seite hinzufügen</button>
 
   <div class="grid" id="grid"></div>
 </div>
 
-<!-- Hintergrund klein & sauber -->
+<!-- Hintergrund -->
 <div class="settings">
   <div>Hintergrund</div>
 
   <input type="file" id="bgInput" class="hidden-file" accept="image/*">
 
-  <button onclick="document.getElementById('bgInput').click()">
-    Hintergrund ändern
-  </button>
-
+  <button onclick="bgInput.click()">Hintergrund ändern</button>
   <button onclick="resetBackground()">Zurücksetzen</button>
 </div>
 
