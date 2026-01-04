@@ -2,69 +2,203 @@
 <html lang="de">
 <head>
   <meta charset="UTF-8">
-  <title>Startseite</title>
+  <title>Beginnpage</title>
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
   <style>
     body {
       margin: 0;
       font-family: Arial, sans-serif;
-      background: #121212;
+      min-height: 100vh;
+      background-size: cover;
+      background-position: center;
       color: white;
-      padding: 20px;
     }
+
+    .overlay {
+      background: rgba(0,0,0,0.6);
+      min-height: 100vh;
+      padding: 30px;
+    }
+
+    h1 {
+      text-align: center;
+      font-size: 48px;
+      margin-bottom: 30px;
+    }
+
+    .box {
+      max-width: 700px;
+      margin: 0 auto 25px auto;
+      background: rgba(255,255,255,0.1);
+      padding: 15px;
+      border-radius: 10px;
+    }
+
     input, button {
-      padding: 10px;
       width: 100%;
+      padding: 10px;
       margin-top: 10px;
+      border: none;
+      border-radius: 6px;
       font-size: 16px;
     }
-    ul {
-      list-style: none;
-      padding: 0;
+
+    button {
+      background: #1e88e5;
+      color: white;
+      cursor: pointer;
     }
-    li {
-      margin-top: 10px;
+
+    /* ICON GRID */
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+      gap: 15px;
+      margin-top: 15px;
     }
-    a {
-      color: #4fc3f7;
-      text-decoration: none;
+
+    .tile {
+      background: rgba(0,0,0,0.4);
+      border-radius: 10px;
+      padding: 10px;
+      text-align: center;
+      position: relative;
+      cursor: pointer;
+    }
+
+    .tile img {
+      width: 40px;
+      height: 40px;
+    }
+
+    .tile span {
+      display: block;
+      font-size: 12px;
+      margin-top: 8px;
+      word-break: break-word;
+    }
+
+    .delete {
+      position: absolute;
+      top: 4px;
+      right: 6px;
+      color: #ff5252;
+      font-weight: bold;
+      cursor: pointer;
     }
   </style>
 </head>
+
 <body>
+<div class="overlay">
 
-<h1>Meine Startseite</h1>
+  <h1>Beginnpage</h1>
 
-<input id="urlInput" placeholder="https://example.de">
-<button onclick="add()">Hinzufügen</button>
+  <!-- Suche -->
+  <div class="box">
+    <input id="search" placeholder="Suche im Internet"
+      onkeydown="if(event.key==='Enter') searchGoogle()">
+  </div>
 
-<ul id="list"></ul>
+  <!-- Links -->
+  <div class="box">
+    <input id="urlInput" placeholder="https://example.de">
+    <button onclick="addUrl()">Seite hinzufügen</button>
+    <div class="grid" id="grid"></div>
+  </div>
+
+  <!-- Hintergrund -->
+  <div class="box">
+    <input type="file" accept="image/*" onchange="setBackground(event)">
+    <button onclick="resetBackground()">Hintergrund zurücksetzen</button>
+  </div>
+
+</div>
 
 <script>
-  const list = document.getElementById("list");
+  const grid = document.getElementById("grid");
   const input = document.getElementById("urlInput");
 
-  function load() {
+  function loadUrls() {
     const urls = JSON.parse(localStorage.getItem("urls") || "[]");
-    list.innerHTML = "";
-    urls.forEach(u => {
-      const li = document.createElement("li");
-      li.innerHTML = `<a href="${u}" target="_blank">${u}</a>`;
-      list.appendChild(li);
+    grid.innerHTML = "";
+
+    urls.forEach((url, index) => {
+      const tile = document.createElement("div");
+      tile.className = "tile";
+      tile.onclick = () => window.open(url, "_blank");
+
+      const img = document.createElement("img");
+      img.src = "https://www.google.com/s2/favicons?domain=" + url + "&sz=64";
+      img.onerror = () => img.src =
+        "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='64' height='64'><text y='50%' x='50%' text-anchor='middle' font-size='32'>🌐</text></svg>";
+
+      const label = document.createElement("span");
+      label.textContent = new URL(url).hostname;
+
+      const del = document.createElement("div");
+      del.textContent = "✕";
+      del.className = "delete";
+      del.onclick = (e) => {
+        e.stopPropagation();
+        deleteUrl(index);
+      };
+
+      tile.appendChild(del);
+      tile.appendChild(img);
+      tile.appendChild(label);
+      grid.appendChild(tile);
     });
   }
 
-  function add() {
+  function addUrl() {
     const url = input.value.trim();
-    if (!url) return;
+    if (!url.startsWith("http")) return;
     const urls = JSON.parse(localStorage.getItem("urls") || "[]");
     urls.push(url);
     localStorage.setItem("urls", JSON.stringify(urls));
     input.value = "";
-    load();
+    loadUrls();
   }
 
-  load();
+  function deleteUrl(index) {
+    const urls = JSON.parse(localStorage.getItem("urls") || "[]");
+    urls.splice(index, 1);
+    localStorage.setItem("urls", JSON.stringify(urls));
+    loadUrls();
+  }
+
+  function setBackground(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      document.body.style.backgroundImage = `url(${reader.result})`;
+      localStorage.setItem("background", reader.result);
+    };
+    reader.readAsDataURL(file);
+  }
+
+  function loadBackground() {
+    const bg = localStorage.getItem("background");
+    if (bg) document.body.style.backgroundImage = `url(${bg})`;
+  }
+
+  function resetBackground() {
+    localStorage.removeItem("background");
+    document.body.style.backgroundImage = "";
+  }
+
+  function searchGoogle() {
+    const q = document.getElementById("search").value.trim();
+    if (q) {
+      location.href = "https://www.google.com/search?q=" + encodeURIComponent(q);
+    }
+  }
+
+  loadUrls();
+  loadBackground();
 </script>
 
 </body>
