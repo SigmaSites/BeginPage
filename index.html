@@ -6,6 +6,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
+* { box-sizing: border-box; }
+
 html, body {
   margin: 0;
   padding: 0;
@@ -24,7 +26,6 @@ body {
   min-height: 100vh;
   background: rgba(0,0,0,0.65);
   padding: 20px;
-  box-sizing: border-box;
 }
 
 h1 {
@@ -38,7 +39,6 @@ h1 {
   background: rgba(255,255,255,0.1);
   padding: 15px;
   border-radius: 10px;
-  box-sizing: border-box;
 }
 
 input {
@@ -47,7 +47,6 @@ input {
   border-radius: 6px;
   border: none;
   font-size: 15px;
-  box-sizing: border-box;
 }
 
 button {
@@ -58,7 +57,6 @@ button {
   border-radius: 6px;
   background: #2196f3;
   color: white;
-  font-size: 14px;
   cursor: pointer;
 }
 
@@ -69,17 +67,19 @@ ul {
 }
 
 li {
-  background: rgba(0,0,0,0.4);
-  margin-top: 6px;
-  padding: 8px;
-  border-radius: 6px;
-
   display: flex;
   align-items: center;
   gap: 8px;
+  background: rgba(0,0,0,0.4);
+  padding: 8px;
+  border-radius: 6px;
+  margin-top: 6px;
+}
 
-  max-width: 100%;
-  box-sizing: border-box;
+li img {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
 }
 
 li a {
@@ -87,7 +87,6 @@ li a {
   color: #90caf9;
   text-decoration: none;
   word-break: break-word;
-  overflow-wrap: anywhere;
 }
 
 .delete {
@@ -97,7 +96,17 @@ li a {
   padding: 4px 8px;
   border-radius: 4px;
   cursor: pointer;
-  flex-shrink: 0;
+}
+
+#suggestions {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 100%;
+  background: #111;
+  border-radius: 0 0 10px 10px;
+  overflow: hidden;
+  z-index: 10;
 }
 
 #suggestions div {
@@ -145,15 +154,6 @@ li a {
   <div id="suggestions"></div>
 </div>
 
-<!-- Suchverlauf -->
-<div class="box" id="historyBox" style="display:none">
-  <div style="display:flex;justify-content:space-between;align-items:center">
-    <strong>Suchverlauf</strong>
-    <button onclick="clearHistory()" style="width:auto;background:#555">Löschen</button>
-  </div>
-  <div id="historyList"></div>
-</div>
-
 <!-- Eigene Seiten -->
 <div class="box">
   <h3>Eigene Seiten</h3>
@@ -164,13 +164,7 @@ li a {
 
 <!-- Hintergrund -->
 <div class="settings">
-  <input
-    type="file"
-    id="bgInput"
-    class="hidden-file"
-    accept="image/*"
-    onchange="setBackground(event)"
-  >
+  <input type="file" id="bgInput" class="hidden-file" accept="image/*" onchange="setBackground(event)">
   <button onclick="bgInput.click()">Hintergrund ändern</button>
   <button onclick="resetBackground()">Zurücksetzen</button>
 </div>
@@ -179,27 +173,15 @@ li a {
 
 <script>
 /* ---------- SUCHE ---------- */
-let currentSuggestions = [];
+let suggestionsArr = [];
 let selectedIndex = -1;
 
-function getHistory() {
-  return JSON.parse(localStorage.getItem("searchHistory") || "[]");
-}
-
-function saveToHistory(q) {
-  let h = getHistory().filter(x => x !== q);
-  h.unshift(q);
-  localStorage.setItem("searchHistory", JSON.stringify(h.slice(0,20)));
-}
-
 function openSearch(q) {
-  saveToHistory(q);
   window.open(
     "https://www.google.com/search?q=" + encodeURIComponent(q),
     "_blank"
   );
   suggestions.innerHTML = "";
-  renderHistory();
 }
 
 function searchGoogle() {
@@ -208,29 +190,23 @@ function searchGoogle() {
 }
 
 function loadSuggestions() {
-  const q = search.value.trim().toLowerCase();
+  const q = search.value.trim();
   suggestions.innerHTML = "";
-  currentSuggestions = [];
+  suggestionsArr = [];
   selectedIndex = -1;
   if (!q) return;
 
-  getHistory()
-    .filter(x => x.toLowerCase().includes(q))
-    .slice(0,4)
-    .forEach(addSuggestion);
-
   fetch("https://duckduckgo.com/ac/?q=" + encodeURIComponent(q))
     .then(r => r.json())
-    .then(data => data.forEach(d => addSuggestion(d.phrase)));
-}
-
-function addSuggestion(text) {
-  if (currentSuggestions.includes(text) || currentSuggestions.length >= 8) return;
-  currentSuggestions.push(text);
-  const d = document.createElement("div");
-  d.textContent = text;
-  d.onclick = () => openSearch(text);
-  suggestions.appendChild(d);
+    .then(data => {
+      data.slice(0,8).forEach(item => {
+        const d = document.createElement("div");
+        d.textContent = item.phrase;
+        d.onclick = () => openSearch(item.phrase);
+        suggestions.appendChild(d);
+        suggestionsArr.push(item.phrase);
+      });
+    });
 }
 
 function handleKey(e) {
@@ -239,39 +215,24 @@ function handleKey(e) {
   if (e.key === "ArrowUp") selectedIndex--;
   if (e.key === "Enter") {
     e.preventDefault();
-    const q =
-      selectedIndex >= 0
-        ? currentSuggestions[selectedIndex]
-        : search.value.trim();
+    const q = selectedIndex >= 0 ? suggestionsArr[selectedIndex] : search.value;
     if (q) openSearch(q);
   }
   selectedIndex = Math.max(0, Math.min(selectedIndex, items.length - 1));
 }
 
-/* ---------- VERLAUF ---------- */
-function renderHistory() {
-  const h = getHistory();
-  historyBox.style.display = h.length ? "block" : "none";
-  historyList.innerHTML = "";
-  h.slice(0,10).forEach(x => {
-    const d = document.createElement("div");
-    d.textContent = x;
-    d.style.cursor = "pointer";
-    d.onclick = () => openSearch(x);
-    historyList.appendChild(d);
-  });
-}
-
-function clearHistory() {
-  localStorage.removeItem("searchHistory");
-  renderHistory();
-}
-
-/* ---------- EIGENE SEITEN ---------- */
+/* ---------- EIGENE SEITEN MIT ICONS ---------- */
 function loadUrls() {
   urlList.innerHTML = "";
-  JSON.parse(localStorage.getItem("urls") || "[]").forEach((u,i)=>{
+  const urls = JSON.parse(localStorage.getItem("urls") || "[]");
+
+  urls.forEach((u, i) => {
     const li = document.createElement("li");
+
+    const img = document.createElement("img");
+    img.src = "https://www.google.com/s2/favicons?domain=" + u;
+    img.onerror = () => img.style.display = "none";
+
     const a = document.createElement("a");
     a.href = u;
     a.target = "_blank";
@@ -282,6 +243,7 @@ function loadUrls() {
     b.className = "delete";
     b.onclick = () => deleteUrl(i);
 
+    li.appendChild(img);
     li.appendChild(a);
     li.appendChild(b);
     urlList.appendChild(li);
@@ -291,17 +253,17 @@ function loadUrls() {
 function addUrl() {
   const u = urlInput.value.trim();
   if (!u) return;
-  const a = JSON.parse(localStorage.getItem("urls") || "[]");
-  a.push(u);
-  localStorage.setItem("urls", JSON.stringify(a));
+  const urls = JSON.parse(localStorage.getItem("urls") || "[]");
+  urls.push(u);
+  localStorage.setItem("urls", JSON.stringify(urls));
   urlInput.value = "";
   loadUrls();
 }
 
 function deleteUrl(i) {
-  const a = JSON.parse(localStorage.getItem("urls") || "[]");
-  a.splice(i,1);
-  localStorage.setItem("urls", JSON.stringify(a));
+  const urls = JSON.parse(localStorage.getItem("urls"));
+  urls.splice(i,1);
+  localStorage.setItem("urls", JSON.stringify(urls));
   loadUrls();
 }
 
@@ -324,9 +286,10 @@ function resetBackground() {
 
 /* ---------- INIT ---------- */
 loadUrls();
-renderHistory();
 const bg = localStorage.getItem("bg");
 if (bg) document.body.style.backgroundImage = `url(${bg})`;
+
+search.focus();
 </script>
 
 </body>
