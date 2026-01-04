@@ -240,9 +240,14 @@ function swapItems(target) {
 
 function searchGoogle() {
   const q = document.getElementById("search").value.trim();
-  if (q) location.href =
-    "https://www.google.com/search?q=" + encodeURIComponent(q);
+  if (!q) return;
+
+  window.open(
+    "https://www.google.com/search?q=" + encodeURIComponent(q),
+    "_blank"
+  );
 }
+
 
 function setBackground(e) {
   const file = e.target.files[0];
