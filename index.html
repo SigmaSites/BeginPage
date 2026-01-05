@@ -22,7 +22,7 @@ body {
   color: white;
 }
 
-/* Overlay */
+/* Overlay – Samsung Internet Fix */
 .overlay {
   position: fixed;
   inset: 0;
@@ -36,9 +36,34 @@ body {
   position: fixed;
   top: 15px;
   left: 15px;
-  font-size: 26px;
+  width: 30px;
+  height: 22px;
   cursor: pointer;
   z-index: 1002;
+}
+.hamburger span {
+  position: absolute;
+  width: 100%;
+  height: 3px;
+  background: white;
+  left: 0;
+  transition: 0.25s ease;
+}
+.hamburger span:nth-child(1) { top: 0; }
+.hamburger span:nth-child(2) { top: 9px; }
+.hamburger span:nth-child(3) { top: 18px; }
+
+/* Hamburger → X */
+.hamburger.open span:nth-child(1) {
+  transform: rotate(45deg);
+  top: 9px;
+}
+.hamburger.open span:nth-child(2) {
+  opacity: 0;
+}
+.hamburger.open span:nth-child(3) {
+  transform: rotate(-45deg);
+  top: 9px;
 }
 
 /* Backdrop */
@@ -49,10 +74,7 @@ body {
   display: none;
   z-index: 1000;
 }
-
-.backdrop.show {
-  display: block;
-}
+.backdrop.show { display: block; }
 
 /* Menü */
 .menu {
@@ -67,10 +89,7 @@ body {
   transition: transform 0.25s ease;
   z-index: 1001;
 }
-
-.menu.open {
-  transform: translateX(0);
-}
+.menu.open { transform: translateX(0); }
 
 .menu button {
   width: 100%;
@@ -82,10 +101,6 @@ body {
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-.menu span.icon {
-  font-size: 18px;
 }
 
 /* Content */
@@ -173,16 +188,15 @@ button {
 
 <body>
 
-<div class="hamburger" onclick="openMenu()">☰</div>
+<div class="hamburger" onclick="toggleMenu()">
+  <span></span><span></span><span></span>
+</div>
+
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
 <div class="menu" id="menu">
-  <button onclick="showPage('home')">
-    <span class="icon">🏠</span> Startseite
-  </button>
-  <button onclick="showPage('history')">
-    <span class="icon">🕘</span> Verlauf
-  </button>
+  <button onclick="showPage('home')">🏠 Startseite</button>
+  <button onclick="showPage('history')">🕘 Verlauf</button>
 </div>
 
 <div class="overlay">
@@ -191,7 +205,6 @@ button {
 
 <!-- STARTSEITE -->
 <div id="home">
-
   <div class="box">
     <form onsubmit="searchGoogle(); return false;">
       <input id="search" placeholder="Mit deiner 1. Suche beginnen" autofocus>
@@ -213,7 +226,6 @@ button {
     <button onclick="bgInput.click()">Hintergrund ändern</button>
     <button onclick="resetBackground()">Zurücksetzen</button>
   </div>
-
 </div>
 
 <!-- VERLAUF -->
@@ -230,17 +242,20 @@ button {
 <script>
 const menu = document.getElementById("menu");
 const backdrop = document.getElementById("backdrop");
+const hamburger = document.querySelector(".hamburger");
 const grid = document.getElementById("grid");
 const historyList = document.getElementById("historyList");
 
-function openMenu() {
-  menu.classList.add("open");
-  backdrop.classList.add("show");
+function toggleMenu() {
+  const open = menu.classList.toggle("open");
+  backdrop.classList.toggle("show", open);
+  hamburger.classList.toggle("open", open);
 }
 
 function closeMenu() {
   menu.classList.remove("open");
   backdrop.classList.remove("show");
+  hamburger.classList.remove("open");
 }
 
 function showPage(page) {
