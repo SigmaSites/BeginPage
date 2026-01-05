@@ -74,8 +74,8 @@ a{color:#90caf9;text-decoration:none;flex:1}
 .icon{
   width:22px;
   height:22px;
-  object-fit:cover;
   border-radius:4px;
+  object-fit:cover;
 }
 
 /* File Inputs verstecken */
@@ -173,7 +173,7 @@ input[type="file"]{display:none}
     <input id="siteUrl" placeholder="https://">
 
     <label class="fileBtn">
-      Icon auswählen
+      Icon auswählen (optional)
       <input id="iconFile" type="file" accept="image/*">
     </label>
 
@@ -235,13 +235,10 @@ function doSearch(){
   if(!q)return;
 
   const h=JSON.parse(localStorage.getItem("history")||"[]");
-  h.push({q,date:new Date().toLocaleDateString()});
+  h.push({q});
   localStorage.setItem("history",JSON.stringify(h));
 
-  window.open(
-    "https://www.google.com/search?q="+encodeURIComponent(q),
-    "_blank"
-  );
+  window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
 }
 
 /* Verlauf */
@@ -260,19 +257,26 @@ function addSite(){
   const u=document.getElementById("siteUrl").value.trim();
   if(!n||!u)return;
 
-  const file=document.getElementById("iconFile").files[0];
-  if(file){
+  const f=document.getElementById("iconFile").files[0];
+  if(f){
     const r=new FileReader();
     r.onload=()=>saveSite(n,u,r.result);
-    r.readAsDataURL(file);
+    r.readAsDataURL(f);
   }else{
     saveSite(n,u,"");
   }
 }
 
 function saveSite(n,u,i){
+  let icon=i;
+  if(!icon){
+    try{
+      const d=new URL(u).hostname;
+      icon="https://www.google.com/s2/favicons?domain="+d;
+    }catch{icon=""}
+  }
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.push({n,u,i});
+  s.push({n,u,i:icon});
   localStorage.setItem("sites",JSON.stringify(s));
   document.getElementById("siteName").value="";
   document.getElementById("siteUrl").value="";
@@ -287,7 +291,7 @@ function loadSites(){
   s.forEach((e,idx)=>{
     ul.innerHTML+=`
       <li>
-        ${e.i?`<img class="icon" src="${e.i}">`:""}
+        <img class="icon" src="${e.i}">
         <a href="${e.u}" target="_blank">${e.n}</a>
         <button class="delete" onclick="deleteSite(${idx})">X</button>
       </li>`;
