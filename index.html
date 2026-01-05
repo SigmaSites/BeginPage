@@ -8,6 +8,18 @@
 <style>
 * { box-sizing: border-box; }
 
+:root {
+  --box-bg: rgba(60,60,60,0.85);
+  --text: #fff;
+  --overlay: rgba(0,0,0,0.6);
+}
+
+body.light {
+  --box-bg: rgba(230,230,230,0.9);
+  --text: #111;
+  --overlay: rgba(255,255,255,0.7);
+}
+
 html, body {
   margin: 0;
   padding: 0;
@@ -19,14 +31,14 @@ body {
   font-family: Arial, sans-serif;
   background-size: cover;
   background-position: center;
-  color: white;
+  color: var(--text);
 }
 
-/* Overlay – Samsung Internet Fix */
+/* Overlay */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.6);
+  background: var(--overlay);
   overflow-y: auto;
   padding: 20px;
 }
@@ -45,26 +57,16 @@ body {
   position: absolute;
   width: 100%;
   height: 3px;
-  background: white;
+  background: var(--text);
   left: 0;
   transition: 0.25s ease;
 }
-.hamburger span:nth-child(1) { top: 0; }
-.hamburger span:nth-child(2) { top: 9px; }
-.hamburger span:nth-child(3) { top: 18px; }
-
-/* Hamburger → X */
-.hamburger.open span:nth-child(1) {
-  transform: rotate(45deg);
-  top: 9px;
-}
-.hamburger.open span:nth-child(2) {
-  opacity: 0;
-}
-.hamburger.open span:nth-child(3) {
-  transform: rotate(-45deg);
-  top: 9px;
-}
+.hamburger span:nth-child(1){top:0}
+.hamburger span:nth-child(2){top:9px}
+.hamburger span:nth-child(3){top:18px}
+.hamburger.open span:nth-child(1){transform:rotate(45deg);top:9px}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){transform:rotate(-45deg);top:9px}
 
 /* Backdrop */
 .backdrop {
@@ -74,48 +76,54 @@ body {
   display: none;
   z-index: 1000;
 }
-.backdrop.show { display: block; }
+.backdrop.show { display:block }
 
 /* Menü */
 .menu {
   position: fixed;
   top: 0;
   left: 0;
-  width: 240px;
+  width: 250px;
   height: 100%;
-  background: rgba(0,0,0,0.9);
+  background: rgba(30,30,30,0.95);
   padding: 70px 20px;
   transform: translateX(-100%);
-  transition: transform 0.25s ease;
+  transition: transform .25s ease;
   z-index: 1001;
 }
 .menu.open { transform: translateX(0); }
 
-.menu button {
+.menu button, .menu label {
   width: 100%;
   margin-bottom: 15px;
   background: #1e88e5;
   border-radius: 10px;
   padding: 12px;
-  font-size: 16px;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  font-size: 15px;
+  color: #fff;
+  border: none;
+  cursor: pointer;
 }
 
 /* Content */
 h1 {
   text-align: center;
   font-size: 42px;
-  margin: 20px 0 30px 0;
+  margin: 20px 0 30px;
 }
 
 .box {
   max-width: 800px;
-  margin: 0 auto 25px auto;
-  background: rgba(255,255,255,0.12);
+  margin: 0 auto 25px;
+  background: var(--box-bg);
   padding: 15px;
   border-radius: 12px;
+  transition: background .2s ease;
+}
+
+.glass .box {
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 input, button {
@@ -133,55 +141,12 @@ button {
   cursor: pointer;
 }
 
-.hidden-file { display: none; }
+.hidden-file { display:none }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(95px, 1fr));
-  gap: 15px;
-  margin-top: 15px;
-}
-
-.tile {
-  background: rgba(0,0,0,0.45);
-  border-radius: 12px;
-  padding: 12px;
-  text-align: center;
-  cursor: pointer;
-  position: relative;
-}
-
-.tile img {
-  width: 46px;
-  height: 46px;
-}
-
-.tile span {
+.settings small {
+  opacity: .7;
   display: block;
-  font-size: 12px;
-  margin-top: 8px;
-}
-
-.delete {
-  position: absolute;
-  top: 6px;
-  right: 8px;
-  color: #ff5252;
-  font-weight: bold;
-  cursor: pointer;
-}
-
-.settings {
-  max-width: 800px;
-  margin: 30px auto 20px auto;
-  font-size: 13px;
-  opacity: 0.8;
-}
-
-.history-item {
-  padding: 8px;
-  border-bottom: 1px solid rgba(255,255,255,0.2);
-  cursor: pointer;
+  margin-top: 5px;
 }
 </style>
 </head>
@@ -195,16 +160,21 @@ button {
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
 <div class="menu" id="menu">
-  <button onclick="showPage('home')">🏠 Startseite</button>
-  <button onclick="showPage('history')">🕘 Verlauf</button>
+  <button onclick="toggleTheme()">🌗 Light / Dark</button>
+
+  <label>
+    Grauton
+    <input type="range" min="20" max="90" id="graySlider">
+  </label>
+
+  <label>
+    <input type="checkbox" id="glassToggle"> Glas-Effekt
+  </label>
 </div>
 
 <div class="overlay">
+  <h1>Beginpage</h1>
 
-<h1>Beginpage</h1>
-
-<!-- STARTSEITE -->
-<div id="home">
   <div class="box">
     <form onsubmit="searchGoogle(); return false;">
       <input id="search" placeholder="Mit deiner 1. Suche beginnen" autofocus>
@@ -212,137 +182,61 @@ button {
     </form>
   </div>
 
-  <div class="box">
-    <input id="urlInput" placeholder="https://example.de">
-    <input type="file" id="iconInput" class="hidden-file" accept="image/*">
-    <button onclick="iconInput.click()">Icon auswählen </button>
-    <button onclick="addUrl()">Seite hinzufügen</button>
-    <div class="grid" id="grid"></div>
-  </div>
-
-  <div class="settings">
+  <div class="box settings">
     <div>Hintergrund</div>
     <input type="file" id="bgInput" class="hidden-file" accept="image/*">
     <button onclick="bgInput.click()">Hintergrund ändern</button>
     <button onclick="resetBackground()">Zurücksetzen</button>
+    <small>Einstellungen bleiben gespeichert</small>
   </div>
-</div>
-
-<!-- VERLAUF -->
-<div id="history" style="display:none">
-  <div class="box">
-    <h3>Suchverlauf</h3>
-    <div id="historyList"></div>
-    <button onclick="clearHistory()">Verlauf löschen</button>
-  </div>
-</div>
-
 </div>
 
 <script>
 const menu = document.getElementById("menu");
 const backdrop = document.getElementById("backdrop");
 const hamburger = document.querySelector(".hamburger");
-const grid = document.getElementById("grid");
-const historyList = document.getElementById("historyList");
+const slider = document.getElementById("graySlider");
+const glassToggle = document.getElementById("glassToggle");
 
-function toggleMenu() {
+function toggleMenu(){
   const open = menu.classList.toggle("open");
   backdrop.classList.toggle("show", open);
   hamburger.classList.toggle("open", open);
 }
-
-function closeMenu() {
+function closeMenu(){
   menu.classList.remove("open");
   backdrop.classList.remove("show");
   hamburger.classList.remove("open");
 }
 
-function showPage(page) {
-  home.style.display = page === "home" ? "block" : "none";
-  history.style.display = page === "history" ? "block" : "none";
-  closeMenu();
-  if (page === "history") loadHistory();
-}
-
-function searchGoogle() {
+/* Suche */
+function searchGoogle(){
   const q = search.value.trim();
-  if (!q) return;
+  if(!q) return;
+  window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
+  search.value="";
+}
 
-  const h = JSON.parse(localStorage.getItem("history") || "[]");
-  h.unshift({ q, t: new Date().toLocaleString() });
-  localStorage.setItem("history", JSON.stringify(h));
+/* Light/Dark */
+function toggleTheme(){
+  document.body.classList.toggle("light");
+  localStorage.setItem("theme", document.body.classList.contains("light") ? "light":"dark");
+}
 
-  window.open(
-    "https://www.google.com/search?q=" + encodeURIComponent(q),
-    "_blank"
+/* Grauton */
+slider.oninput = () => {
+  document.documentElement.style.setProperty(
+    "--box-bg",
+    `rgba(${slider.value},${slider.value},${slider.value},0.85)`
   );
-  search.value = "";
-}
+  localStorage.setItem("gray", slider.value);
+};
 
-function loadHistory() {
-  const h = JSON.parse(localStorage.getItem("history") || "[]");
-  historyList.innerHTML = "";
-  h.forEach(i => {
-    const d = document.createElement("div");
-    d.className = "history-item";
-    d.textContent = i.q + " – " + i.t;
-    d.onclick = () =>
-      window.open("https://www.google.com/search?q=" + encodeURIComponent(i.q), "_blank");
-    historyList.appendChild(d);
-  });
-}
-
-function clearHistory() {
-  localStorage.removeItem("history");
-  loadHistory();
-}
-
-/* Seiten */
-function loadUrls() {
-  const pages = JSON.parse(localStorage.getItem("pages") || "[]");
-  grid.innerHTML = "";
-  pages.forEach((p, i) => {
-    const t = document.createElement("div");
-    t.className = "tile";
-    t.onclick = () => window.open(p.url, "_blank");
-
-    const img = document.createElement("img");
-    img.src = p.icon || "https://www.google.com/s2/favicons?domain=" + p.url;
-
-    const s = document.createElement("span");
-    s.textContent = new URL(p.url).hostname;
-
-    const d = document.createElement("div");
-    d.className = "delete";
-    d.textContent = "✕";
-    d.onclick = e => {
-      e.stopPropagation();
-      pages.splice(i,1);
-      localStorage.setItem("pages", JSON.stringify(pages));
-      loadUrls();
-    };
-
-    t.append(d,img,s);
-    grid.appendChild(t);
-  });
-}
-
-function addUrl() {
-  const url = urlInput.value.trim();
-  if (!url.startsWith("http")) return;
-
-  const r = new FileReader();
-  r.onload = () => {
-    const pages = JSON.parse(localStorage.getItem("pages") || "[]");
-    pages.push({ url, icon: iconInput.files[0] ? r.result : null });
-    localStorage.setItem("pages", JSON.stringify(pages));
-    urlInput.value = "";
-    iconInput.value = "";
-    loadUrls();
-  };
-  iconInput.files[0] ? r.readAsDataURL(iconInput.files[0]) : r.onload();
-}
+/* Glas */
+glassToggle.onchange = () => {
+  document.body.classList.toggle("glass", glassToggle.checked);
+  localStorage.setItem("glass", glassToggle.checked);
+};
 
 /* Hintergrund */
 bgInput.onchange = e => {
@@ -353,16 +247,22 @@ bgInput.onchange = e => {
   };
   r.readAsDataURL(e.target.files[0]);
 };
-
-function resetBackground() {
+function resetBackground(){
   localStorage.removeItem("bg");
-  document.body.style.backgroundImage = "";
+  document.body.style.backgroundImage="";
 }
 
-const bg = localStorage.getItem("bg");
-if (bg) document.body.style.backgroundImage = `url(${bg})`;
-
-loadUrls();
+/* Restore */
+if(localStorage.getItem("theme")==="light") document.body.classList.add("light");
+if(localStorage.getItem("bg")) document.body.style.backgroundImage=`url(${localStorage.getItem("bg")})`;
+if(localStorage.getItem("gray")){
+  slider.value = localStorage.getItem("gray");
+  slider.oninput();
+}
+if(localStorage.getItem("glass")==="true"){
+  glassToggle.checked=true;
+  document.body.classList.add("glass");
+}
 </script>
 
 </body>
