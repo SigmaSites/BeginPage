@@ -29,7 +29,6 @@ body{
 
 h1{text-align:center;margin:0 0 25px}
 h2{margin:0 0 10px}
-
 .hidden{display:none}
 
 .box{
@@ -82,6 +81,21 @@ a{color:#90caf9;text-decoration:none;flex:1}
   border-radius:4px;
 }
 
+/* File-Inputs komplett verstecken */
+input[type="file"]{display:none}
+
+/* Eigene File-Buttons */
+.fileBtn{
+  display:block;
+  background:#333;
+  padding:10px;
+  border-radius:6px;
+  margin-top:8px;
+  cursor:pointer;
+  text-align:center;
+}
+.fileBtn:hover{background:#444}
+
 /* Menü */
 .hamburger{
   position:fixed;
@@ -92,7 +106,6 @@ a{color:#90caf9;text-decoration:none;flex:1}
   cursor:pointer;
   z-index:1002;
 }
-
 .hamburger span{
   position:absolute;
   width:100%;
@@ -103,7 +116,6 @@ a{color:#90caf9;text-decoration:none;flex:1}
 .hamburger span:nth-child(1){top:0}
 .hamburger span:nth-child(2){top:9px}
 .hamburger span:nth-child(3){top:18px}
-
 .hamburger.open span:nth-child(1){top:9px;transform:rotate(45deg)}
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){top:9px;transform:rotate(-45deg)}
@@ -149,7 +161,6 @@ a{color:#90caf9;text-decoration:none;flex:1}
   <button onclick="showPage('history')">Verlauf</button>
   <button onclick="showPage('bg')">Hintergrund</button>
 </div>
-
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
 <div class="overlay">
@@ -166,7 +177,12 @@ a{color:#90caf9;text-decoration:none;flex:1}
     <h2>Eigene Seiten</h2>
     <input id="name" placeholder="Name">
     <input id="url" placeholder="https://">
-    <input id="iconFile" type="file" accept="image/*">
+
+    <label class="fileBtn">
+      Icon auswählen
+      <input id="iconFile" type="file" accept="image/*">
+    </label>
+
     <button onclick="addSite()">Hinzufügen</button>
     <ul id="sites"></ul>
   </div>
@@ -181,17 +197,20 @@ a{color:#90caf9;text-decoration:none;flex:1}
 <div id="bg" class="hidden">
   <div class="box">
     <h2>Hintergrund</h2>
-    <input type="file" accept="image/*" onchange="setBg(event)">
+    <label class="fileBtn">
+      Hintergrund auswählen
+      <input type="file" accept="image/*" onchange="setBg(event)">
+    </label>
     <button onclick="resetBg()">Zurücksetzen</button>
   </div>
 </div>
 </div>
 
 <script>
-const menu = document.getElementById("menu");
-const backdrop = document.getElementById("backdrop");
-const hamburger = document.querySelector(".hamburger");
-const title = document.getElementById("title");
+const menu=document.getElementById("menu");
+const backdrop=document.getElementById("backdrop");
+const hamburger=document.querySelector(".hamburger");
+const title=document.getElementById("title");
 
 const pages={
   home:document.getElementById("home"),
@@ -244,18 +263,17 @@ function delHist(i){
 
 /* Eigene Seiten */
 function addSite(){
-  const nameV=name.value.trim();
-  const urlV=url.value.trim();
-  if(!nameV||!urlV)return;
+  const n=name.value.trim();
+  const u=url.value.trim();
+  if(!n||!u)return;
 
-  const file=iconFile.files[0];
-  if(file){
+  const f=iconFile.files[0];
+  if(f){
     const r=new FileReader();
-    r.onload=()=>saveSite(nameV,urlV,r.result);
-    r.readAsDataURL(file);
-  }else saveSite(nameV,urlV,"");
+    r.onload=()=>saveSite(n,u,r.result);
+    r.readAsDataURL(f);
+  }else saveSite(n,u,"");
 }
-
 function saveSite(n,u,i){
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
   s.push({n,u,i});
@@ -263,20 +281,18 @@ function saveSite(n,u,i){
   name.value=url.value=iconFile.value="";
   loadSites();
 }
-
 function loadSites(){
   sites.innerHTML="";
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
   s.forEach((e,i)=>{
     sites.innerHTML+=`
-    <li>
-      ${e.i?`<img class="icon" src="${e.i}">`:""}
-      <a href="${e.u}" target="_blank">${e.n}</a>
-      <button class="delete" onclick="delSite(${i})">X</button>
-    </li>`;
+      <li>
+        ${e.i?`<img class="icon" src="${e.i}">`:""}
+        <a href="${e.u}" target="_blank">${e.n}</a>
+        <button class="delete" onclick="delSite(${i})">X</button>
+      </li>`;
   });
 }
-
 function delSite(i){
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
   s.splice(i,1);
