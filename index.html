@@ -9,11 +9,16 @@
 html,body{
   margin:0;
   padding:0;
-  min-height:100%;
+  height:100%;
   background:#111;
   font-family:Arial,sans-serif;
   color:#fff;
   overflow-x:hidden;
+}
+
+body{
+  background-size:cover;
+  background-position:center;
 }
 
 .overlay{
@@ -22,10 +27,8 @@ html,body{
   background:rgba(0,0,0,.6);
 }
 
-h1{
-  text-align:center;
-  margin:0 0 30px;
-}
+h1{text-align:center;margin:0 0 25px}
+h2{margin:0 0 10px}
 
 .hidden{display:none}
 
@@ -40,9 +43,9 @@ h1{
 input,button{
   width:100%;
   padding:10px;
+  margin-top:8px;
   border:none;
   border-radius:6px;
-  margin-top:8px;
   font-size:14px;
 }
 
@@ -60,18 +63,17 @@ li{
   border-radius:6px;
   margin-top:6px;
   display:flex;
-  justify-content:space-between;
   align-items:center;
+  justify-content:space-between;
+  gap:8px;
 }
 
-a{color:#90caf9;text-decoration:none;word-break:break-all}
+a{color:#90caf9;text-decoration:none;flex:1}
 
 .delete{
   background:#e53935;
-  color:white;
-  border:none;
-  border-radius:4px;
   padding:4px 8px;
+  border-radius:4px;
 }
 
 /* Menü */
@@ -84,7 +86,6 @@ a{color:#90caf9;text-decoration:none;word-break:break-all}
   cursor:pointer;
   z-index:1002;
 }
-
 .hamburger span{
   position:absolute;
   width:100%;
@@ -92,26 +93,18 @@ a{color:#90caf9;text-decoration:none;word-break:break-all}
   background:white;
   transition:.25s;
 }
-
 .hamburger span:nth-child(1){top:0}
 .hamburger span:nth-child(2){top:9px}
 .hamburger span:nth-child(3){top:18px}
-
-.hamburger.open span:nth-child(1){
-  transform:rotate(45deg);
-  top:9px;
-}
+.hamburger.open span:nth-child(1){top:9px;transform:rotate(45deg)}
 .hamburger.open span:nth-child(2){opacity:0}
-.hamburger.open span:nth-child(3){
-  transform:rotate(-45deg);
-  top:9px;
-}
+.hamburger.open span:nth-child(3){top:9px;transform:rotate(-45deg)}
 
 .menu{
   position:fixed;
   top:0;
   right:0;
-  width:220px;
+  width:230px;
   height:100%;
   background:#1e1e1e;
   padding:70px 20px;
@@ -119,13 +112,11 @@ a{color:#90caf9;text-decoration:none;word-break:break-all}
   transition:.25s;
   z-index:1001;
 }
-
 .menu.open{transform:translateX(0)}
-
 .menu button{
   background:none;
-  color:white;
   text-align:left;
+  margin-bottom:10px;
 }
 
 .backdrop{
@@ -136,6 +127,12 @@ a{color:#90caf9;text-decoration:none;word-break:break-all}
   z-index:1000;
 }
 .backdrop.show{display:block}
+
+.icon{
+  width:20px;
+  height:20px;
+  object-fit:contain;
+}
 </style>
 </head>
 
@@ -148,17 +145,27 @@ a{color:#90caf9;text-decoration:none;word-break:break-all}
 <div class="menu" id="menu">
   <button onclick="showPage('home')">Startseite</button>
   <button onclick="showPage('history')">Verlauf</button>
+  <button onclick="showPage('bg')">Hintergrund</button>
 </div>
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
 <div class="overlay">
 <h1 id="title">Beginpage</h1>
 
-<!-- STARTSEITE -->
+<!-- START -->
 <div id="home">
   <div class="box">
     <input id="search" placeholder="Mit deiner 1. Suche beginnen"
-      onkeydown="if(event.key==='Enter')doSearch()">
+      onkeydown="if(event.key==='Enter')search()">
+  </div>
+
+  <div class="box">
+    <h2>Eigene Seiten</h2>
+    <input id="name" placeholder="Name">
+    <input id="url" placeholder="https://">
+    <input id="icon" placeholder="Icon URL (optional)">
+    <button onclick="addSite()">Hinzufügen</button>
+    <ul id="sites"></ul>
   </div>
 </div>
 
@@ -166,42 +173,51 @@ a{color:#90caf9;text-decoration:none;word-break:break-all}
 <div id="history" class="hidden">
   <div class="box" id="historyList"></div>
 </div>
+
+<!-- HINTERGRUND -->
+<div id="bg" class="hidden">
+  <div class="box">
+    <h2>Hintergrund</h2>
+    <input type="file" accept="image/*" onchange="setBg(event)">
+    <button onclick="resetBg()">Zurücksetzen</button>
+  </div>
+</div>
 </div>
 
 <script>
-const menu=document.getElementById("menu");
+const menu=menu=document.getElementById("menu");
 const backdrop=document.getElementById("backdrop");
 const hamburger=document.querySelector(".hamburger");
-const home=document.getElementById("home");
-const history=document.getElementById("history");
 const title=document.getElementById("title");
+
+const pages={
+  home:document.getElementById("home"),
+  history:document.getElementById("history"),
+  bg:document.getElementById("bg")
+};
 
 function toggleMenu(){
   const o=menu.classList.toggle("open");
   backdrop.classList.toggle("show",o);
   hamburger.classList.toggle("open",o);
 }
-
 function closeMenu(){
   menu.classList.remove("open");
   backdrop.classList.remove("show");
   hamburger.classList.remove("open");
 }
-
 function showPage(p){
-  home.classList.toggle("hidden",p!=="home");
-  history.classList.toggle("hidden",p!=="history");
+  Object.keys(pages).forEach(k=>pages[k].classList.toggle("hidden",k!==p));
   title.textContent=p==="history"?"Verlauf":"Beginpage";
   closeMenu();
   if(p==="history") loadHistory();
 }
 
-function doSearch(){
-  const q=document.getElementById("search").value.trim();
+function search(){
+  const q=search.value.trim();
   if(!q)return;
-  const date=new Date().toLocaleDateString();
   const h=JSON.parse(localStorage.getItem("history")||"[]");
-  h.push({q,date});
+  h.push({q,date:new Date().toLocaleDateString()});
   localStorage.setItem("history",JSON.stringify(h));
   window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
 }
@@ -210,32 +226,57 @@ function loadHistory(){
   const box=document.getElementById("historyList");
   const h=JSON.parse(localStorage.getItem("history")||"[]");
   if(!h.length){box.innerHTML="Noch kein Verlauf.";return}
-
-  const groups={};
-  h.forEach((e,i)=>{
-    groups[e.date]=groups[e.date]||[];
-    groups[e.date].push({...e,i});
-  });
-
   box.innerHTML="";
-  Object.keys(groups).reverse().forEach(d=>{
-    box.innerHTML+=`<h3>${d}</h3>`;
-    groups[d].forEach(e=>{
-      box.innerHTML+=`
-        <li>
-          ${e.q}
-          <button class="delete" onclick="deleteHistory(${e.i})">X</button>
-        </li>`;
-    });
+  h.reverse().forEach((e,i)=>{
+    box.innerHTML+=`<li>${e.q}<button class="delete" onclick="delHist(${i})">X</button></li>`;
   });
 }
-
-function deleteHistory(i){
+function delHist(i){
   const h=JSON.parse(localStorage.getItem("history")||"[]");
-  h.splice(i,1);
+  h.splice(h.length-1-i,1);
   localStorage.setItem("history",JSON.stringify(h));
   loadHistory();
 }
+
+function addSite(){
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  s.push({n:name.value,u:url.value,i:icon.value});
+  localStorage.setItem("sites",JSON.stringify(s));
+  name.value=url.value=icon.value="";
+  loadSites();
+}
+function loadSites(){
+  sites.innerHTML="";
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  s.forEach((e,i)=>{
+    sites.innerHTML+=`
+    <li>
+      ${e.i?`<img class="icon" src="${e.i}">`:""}
+      <a href="${e.u}" target="_blank">${e.n}</a>
+      <button class="delete" onclick="delSite(${i})">X</button>
+    </li>`;
+  });
+}
+function delSite(i){
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  s.splice(i,1);
+  localStorage.setItem("sites",JSON.stringify(s));
+  loadSites();
+}
+
+function setBg(e){
+  const r=new FileReader();
+  r.onload=()=>{document.body.style.backgroundImage=`url(${r.result})`;localStorage.setItem("bg",r.result)};
+  r.readAsDataURL(e.target.files[0]);
+}
+function resetBg(){
+  localStorage.removeItem("bg");
+  document.body.style.backgroundImage="";
+}
+
+loadSites();
+const bg=localStorage.getItem("bg");
+if(bg)document.body.style.backgroundImage=`url(${bg})`;
 </script>
 
 </body>
