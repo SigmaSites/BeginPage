@@ -183,6 +183,8 @@ body.light .menu{background:#fff}
   <button onclick="showPage('home')">🏠 Startseite</button>
   <button onclick="showPage('history')">🕘 Verlauf</button>
   <button onclick="showPage('settings')">⚙️ Einstellungen</button>
+  <button onclick="openWebsites()">🌐 Meine Webseiten</button>
+
 </div>
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
@@ -265,6 +267,9 @@ function showPage(p){
   title.textContent=p==="history"?"Verlauf":"Beginpage";
   closeMenu();
   if(p==="history") loadHistory();
+}
+function openWebsites(){
+  window.open("https://maxister13.github.io", "_self");
 }
 
 /* Suche */
