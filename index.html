@@ -32,11 +32,7 @@ html,body{
   color:var(--text);
   overflow-x:hidden;
 }
-
-body{
-  background-size:cover;
-  background-position:center;
-}
+body{background-size:cover;background-position:center}
 
 .overlay{
   min-height:100vh;
@@ -52,7 +48,7 @@ h2{margin:0 0 10px}
   background:var(--box);
   border-radius:10px;
   padding:15px;
-  max-width:600px;
+  max-width:800px;
   margin:0 auto 20px;
 }
 
@@ -72,37 +68,15 @@ body.light select{
   border:1px solid #000;
 }
 
-button{
-  background:#2196f3;
-  color:#fff;
-  cursor:pointer;
-}
+button{background:#2196f3;color:#fff;cursor:pointer}
 
 ul{list-style:none;padding:0;margin:0}
 
-li{
-  background:#222;
-  padding:8px;
-  border-radius:6px;
-  margin-top:6px;
-  display:flex;
-  align-items:center;
-  gap:8px;
-  cursor:grab;
-}
-body.light li{background:#eee}
-
-a{color:#2196f3;text-decoration:none;flex:1}
+.icon{width:40px;height:40px;border-radius:8px}
 
 .delete{
   background:#e53935;
   padding:4px 8px;
-  border-radius:4px;
-}
-
-.icon{
-  width:22px;
-  height:22px;
   border-radius:4px;
 }
 
@@ -117,6 +91,45 @@ input[type=file]{display:none}
   text-align:center;
 }
 body.light .fileBtn{background:#ddd}
+
+/* Seiten als Quadrate */
+#sites{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:15px;
+}
+
+#sites li{
+  width:120px;
+  height:120px;
+  background:var(--box);
+  border-radius:16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  cursor:grab;
+  position:relative;
+  transition:.2s;
+}
+
+#sites li:hover{transform:scale(1.05)}
+
+#sites li a{
+  margin-top:8px;
+  font-size:14px;
+  text-align:center;
+  text-decoration:none;
+  color:#2196f3;
+}
+
+#sites li .delete{
+  position:absolute;
+  top:6px;
+  right:6px;
+}
 
 /* Menü */
 .hamburger{
@@ -187,7 +200,6 @@ body.light .menu{background:#fff}
   <button onclick="showPage('settings')">⚙️ Einstellungen</button>
   <button onclick="openWebsites()">🌐 Meine Webseiten</button>
 </div>
-
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
 <div class="overlay">
@@ -222,10 +234,10 @@ body.light .menu{background:#fff}
 <div id="settings" class="hidden">
   <div class="box">
     <h2>Design</h2>
-    <select onchange="setTheme(this.value)" id="themeSelect">
+    <select onchange="setTheme(this.value)">
       <option value="system">Systemeinstellung</option>
-      <option value="light">Hell</option>
       <option value="dark">Dunkel</option>
+      <option value="light">Hell</option>
     </select>
   </div>
 
@@ -245,15 +257,9 @@ const menu=document.getElementById("menu");
 const backdrop=document.getElementById("backdrop");
 const hamburger=document.querySelector(".hamburger");
 const title=document.getElementById("title");
-const sites=document.getElementById("sites");
-const historyList=document.getElementById("historyList");
-const themeSelect=document.getElementById("themeSelect");
+const sitesEl=document.getElementById("sites");
 
-const pages={
-  home:document.getElementById("home"),
-  history:document.getElementById("history"),
-  settings:document.getElementById("settings")
-};
+let dragIndex=null;
 
 function toggleMenu(){
   const open=menu.classList.toggle("open");
@@ -266,13 +272,13 @@ function closeMenu(){
   hamburger.classList.remove("open");
 }
 function showPage(p){
-  Object.values(pages).forEach(v=>v.classList.add("hidden"));
-  pages[p].classList.remove("hidden");
+  document.querySelectorAll("#home,#history,#settings")
+  .forEach(e=>e.classList.add("hidden"));
+  document.getElementById(p).classList.remove("hidden");
   title.textContent=p==="history"?"Verlauf":"Beginpage";
   closeMenu();
   if(p==="history") loadHistory();
 }
-
 function openWebsites(){
   window.open("https://SigmaSites.github.io/My-Sites/","_self");
 }
@@ -291,16 +297,12 @@ function doSearch(){
 function loadHistory(){
   const h=JSON.parse(localStorage.getItem("history")||"[]");
   historyList.innerHTML="";
-  if(!h.length){
-    historyList.innerHTML="<li>Noch kein Verlauf.</li>";
-    return;
-  }
   h.slice().reverse().forEach((e,i)=>{
     historyList.innerHTML+=`
-      <li>
-        <span style="flex:1">${e}</span>
-        <button class="delete" onclick="deleteHistory(${h.length-1-i})">X</button>
-      </li>`;
+    <li style="display:flex;justify-content:space-between">
+      ${e}
+      <button class="delete" onclick="deleteHistory(${h.length-1-i})">X</button>
+    </li>`;
   });
 }
 function deleteHistory(i){
@@ -313,94 +315,6 @@ function clearHistory(){
   localStorage.removeItem("history");
   loadHistory();
 }
-
-/* Drag & Drop Desktop + Touch */
-
-let draggedEl = null;
-
-function loadSites(){
-  sites.innerHTML="";
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-
-  s.forEach((e,i)=>{
-    const li=document.createElement("li");
-    li.innerHTML=`
-      <img class="icon" src="${e.i}">
-      <a href="${e.u}" target="_blank">${e.n}</a>
-      <button class="delete" onclick="deleteSite(${i})">X</button>
-    `;
-
-    /* Desktop */
-    li.draggable=true;
-
-    li.addEventListener("dragstart",()=>{
-      draggedEl=li;
-      setTimeout(()=>li.style.opacity="0.3",0);
-    });
-
-    li.addEventListener("dragend",()=>{
-      li.style.opacity="1";
-      saveOrder();
-    });
-
-    li.addEventListener("dragover",(e)=>{
-      e.preventDefault();
-      const after=getAfterElement(e.clientY);
-      if(after==null) sites.appendChild(draggedEl);
-      else sites.insertBefore(draggedEl,after);
-    });
-
-    /* Touch */
-    li.addEventListener("touchstart",()=>{
-      draggedEl=li;
-      li.style.opacity="0.3";
-    });
-
-    li.addEventListener("touchmove",(e)=>{
-      e.preventDefault();
-      const touch=e.touches[0];
-      const after=getAfterElement(touch.clientY);
-      if(after==null) sites.appendChild(draggedEl);
-      else sites.insertBefore(draggedEl,after);
-    },{passive:false});
-
-    li.addEventListener("touchend",()=>{
-      li.style.opacity="1";
-      saveOrder();
-    });
-
-    sites.appendChild(li);
-  });
-}
-
-function getAfterElement(y){
-  const elements=[...sites.querySelectorAll("li:not(.dragging)")];
-
-  return elements.reduce((closest,child)=>{
-    const box=child.getBoundingClientRect();
-    const offset=y-box.top-box.height/2;
-    if(offset<0 && offset>closest.offset){
-      return {offset:offset,element:child};
-    }else{
-      return closest;
-    }
-  },{offset:Number.NEGATIVE_INFINITY}).element;
-}
-
-function saveOrder(){
-  const items=[...sites.querySelectorAll("li")];
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  const newOrder=[];
-
-  items.forEach(li=>{
-    const name=li.querySelector("a").textContent;
-    const found=s.find(e=>e.n===name);
-    if(found)newOrder.push(found);
-  });
-
-  localStorage.setItem("sites",JSON.stringify(newOrder));
-}
-
 
 /* Seiten */
 function addSite(){
@@ -422,33 +336,52 @@ function saveSite(n,u,i){
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
   s.push({n,u,i:icon});
   localStorage.setItem("sites",JSON.stringify(s));
-  siteName.value=siteUrl.value=iconFile.value="";
-  loadSites();
-}
-function deleteSite(i){
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.splice(i,1);
-  localStorage.setItem("sites",JSON.stringify(s));
   loadSites();
 }
 
-/* Design */
+function loadSites(){
+  sitesEl.innerHTML="";
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  s.forEach((e,i)=>{
+    const li=document.createElement("li");
+    li.innerHTML=`
+      <img class="icon" src="${e.i}">
+      <a href="${e.u}" target="_blank">${e.n}</a>
+      <button class="delete">X</button>
+    `;
+    li.querySelector(".delete").onclick=()=>{
+      s.splice(i,1);
+      localStorage.setItem("sites",JSON.stringify(s));
+      loadSites();
+    };
+
+    li.draggable=true;
+    li.ondragstart=()=>dragIndex=i;
+    li.ondragover=e=>e.preventDefault();
+    li.ondrop=()=>{
+      const item=s.splice(dragIndex,1)[0];
+      s.splice(i,0,item);
+      localStorage.setItem("sites",JSON.stringify(s));
+      loadSites();
+    };
+
+    sitesEl.appendChild(li);
+  });
+}
+
+/* Theme */
 function setTheme(mode){
-  localStorage.setItem("theme",mode);
+  localStorage.setItem("themeMode",mode);
   applyTheme();
 }
 function applyTheme(){
-  const mode=localStorage.getItem("theme")||"system";
-  themeSelect.value=mode;
+  const mode=localStorage.getItem("themeMode")||"system";
+  document.body.classList.remove("light");
   if(mode==="light") document.body.classList.add("light");
-  else if(mode==="dark") document.body.classList.remove("light");
-  else{
-    document.body.classList.toggle("light",
-      !window.matchMedia("(prefers-color-scheme: dark)").matches);
-  }
+  if(mode==="system" &&
+    window.matchMedia("(prefers-color-scheme: light)").matches)
+      document.body.classList.add("light");
 }
-window.matchMedia("(prefers-color-scheme: dark)")
-  .addEventListener("change",applyTheme);
 
 /* Hintergrund */
 function setBg(e){
@@ -466,6 +399,7 @@ function resetBg(){
 
 /* Init */
 loadSites();
+loadHistory();
 applyTheme();
 if(localStorage.getItem("bg"))
   document.body.style.backgroundImage=`url(${localStorage.getItem("bg")})`;
