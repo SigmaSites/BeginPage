@@ -314,8 +314,9 @@ function clearHistory(){
   loadHistory();
 }
 
-/* Drag & Drop */
-let dragItem=null;
+/* Drag & Drop Desktop + Touch */
+
+let draggedEl = null;
 
 function loadSites(){
   sites.innerHTML="";
@@ -323,37 +324,58 @@ function loadSites(){
 
   s.forEach((e,i)=>{
     const li=document.createElement("li");
-    li.draggable=true;
     li.innerHTML=`
       <img class="icon" src="${e.i}">
       <a href="${e.u}" target="_blank">${e.n}</a>
       <button class="delete" onclick="deleteSite(${i})">X</button>
     `;
 
+    /* Desktop */
+    li.draggable=true;
+
     li.addEventListener("dragstart",()=>{
-      dragItem=li;
-      setTimeout(()=>li.style.display="none",0);
+      draggedEl=li;
+      setTimeout(()=>li.style.opacity="0.3",0);
     });
 
     li.addEventListener("dragend",()=>{
-      li.style.display="flex";
-      dragItem=null;
+      li.style.opacity="1";
       saveOrder();
     });
 
     li.addEventListener("dragover",(e)=>{
       e.preventDefault();
-      const after=getDragAfterElement(sites,e.clientY);
-      if(after==null) sites.appendChild(dragItem);
-      else sites.insertBefore(dragItem,after);
+      const after=getAfterElement(e.clientY);
+      if(after==null) sites.appendChild(draggedEl);
+      else sites.insertBefore(draggedEl,after);
+    });
+
+    /* Touch */
+    li.addEventListener("touchstart",()=>{
+      draggedEl=li;
+      li.style.opacity="0.3";
+    });
+
+    li.addEventListener("touchmove",(e)=>{
+      e.preventDefault();
+      const touch=e.touches[0];
+      const after=getAfterElement(touch.clientY);
+      if(after==null) sites.appendChild(draggedEl);
+      else sites.insertBefore(draggedEl,after);
+    },{passive:false});
+
+    li.addEventListener("touchend",()=>{
+      li.style.opacity="1";
+      saveOrder();
     });
 
     sites.appendChild(li);
   });
 }
 
-function getDragAfterElement(container,y){
-  const elements=[...container.querySelectorAll("li:not(.dragging)")];
+function getAfterElement(y){
+  const elements=[...sites.querySelectorAll("li:not(.dragging)")];
+
   return elements.reduce((closest,child)=>{
     const box=child.getBoundingClientRect();
     const offset=y-box.top-box.height/2;
@@ -369,13 +391,16 @@ function saveOrder(){
   const items=[...sites.querySelectorAll("li")];
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
   const newOrder=[];
+
   items.forEach(li=>{
     const name=li.querySelector("a").textContent;
     const found=s.find(e=>e.n===name);
     if(found)newOrder.push(found);
   });
+
   localStorage.setItem("sites",JSON.stringify(newOrder));
 }
+
 
 /* Seiten */
 function addSite(){
