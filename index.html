@@ -245,6 +245,9 @@ const menu=document.getElementById("menu");
 const backdrop=document.getElementById("backdrop");
 const hamburger=document.querySelector(".hamburger");
 const title=document.getElementById("title");
+const sites=document.getElementById("sites");
+const historyList=document.getElementById("historyList");
+const themeSelect=document.getElementById("themeSelect");
 
 const pages={
   home:document.getElementById("home"),
@@ -284,7 +287,7 @@ function doSearch(){
   window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
 }
 
-/* Verlauf einzeln löschbar */
+/* Verlauf */
 function loadHistory(){
   const h=JSON.parse(localStorage.getItem("history")||"[]");
   historyList.innerHTML="";
@@ -311,36 +314,70 @@ function clearHistory(){
   loadHistory();
 }
 
-/* Drag & Drop Seiten */
-let dragIndex=null;
+/* Drag & Drop */
+let dragItem=null;
 
 function loadSites(){
   sites.innerHTML="";
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
+
   s.forEach((e,i)=>{
-    sites.innerHTML+=`
-    <li draggable="true"
-        ondragstart="dragStart(${i})"
-        ondragover="event.preventDefault()"
-        ondrop="dropSite(${i})">
+    const li=document.createElement("li");
+    li.draggable=true;
+    li.innerHTML=`
       <img class="icon" src="${e.i}">
       <a href="${e.u}" target="_blank">${e.n}</a>
       <button class="delete" onclick="deleteSite(${i})">X</button>
-    </li>`;
+    `;
+
+    li.addEventListener("dragstart",()=>{
+      dragItem=li;
+      setTimeout(()=>li.style.display="none",0);
+    });
+
+    li.addEventListener("dragend",()=>{
+      li.style.display="flex";
+      dragItem=null;
+      saveOrder();
+    });
+
+    li.addEventListener("dragover",(e)=>{
+      e.preventDefault();
+      const after=getDragAfterElement(sites,e.clientY);
+      if(after==null) sites.appendChild(dragItem);
+      else sites.insertBefore(dragItem,after);
+    });
+
+    sites.appendChild(li);
   });
 }
 
-function dragStart(i){ dragIndex=i; }
-
-function dropSite(i){
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  const moved=s.splice(dragIndex,1)[0];
-  s.splice(i,0,moved);
-  localStorage.setItem("sites",JSON.stringify(s));
-  loadSites();
+function getDragAfterElement(container,y){
+  const elements=[...container.querySelectorAll("li:not(.dragging)")];
+  return elements.reduce((closest,child)=>{
+    const box=child.getBoundingClientRect();
+    const offset=y-box.top-box.height/2;
+    if(offset<0 && offset>closest.offset){
+      return {offset:offset,element:child};
+    }else{
+      return closest;
+    }
+  },{offset:Number.NEGATIVE_INFINITY}).element;
 }
 
-/* Seiten hinzufügen */
+function saveOrder(){
+  const items=[...sites.querySelectorAll("li")];
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  const newOrder=[];
+  items.forEach(li=>{
+    const name=li.querySelector("a").textContent;
+    const found=s.find(e=>e.n===name);
+    if(found)newOrder.push(found);
+  });
+  localStorage.setItem("sites",JSON.stringify(newOrder));
+}
+
+/* Seiten */
 function addSite(){
   const n=siteName.value.trim();
   const u=siteUrl.value.trim();
@@ -370,7 +407,7 @@ function deleteSite(i){
   loadSites();
 }
 
-/* Design Auswahl */
+/* Design */
 function setTheme(mode){
   localStorage.setItem("theme",mode);
   applyTheme();
@@ -385,7 +422,6 @@ function applyTheme(){
       !window.matchMedia("(prefers-color-scheme: dark)").matches);
   }
 }
-
 window.matchMedia("(prefers-color-scheme: dark)")
   .addEventListener("change",applyTheme);
 
