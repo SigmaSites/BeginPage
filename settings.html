@@ -1,1 +1,75 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Beginpage – Einstellungen</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* Gleiche Styles wie index.html, nur Startseite/Verlauf Inhalt entfernt */
+*{box-sizing:border-box}
+/* ... (alles CSS von index.html) ... */
+</style>
+</head>
+<body>
+<div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+<div class="menu" id="menu">
+  <button onclick="location.href='index.html'">🏠 Startseite</button>
+  <button onclick="location.href='history.html'">🕘 Verlauf</button>
+  <button onclick="location.href='settings.html'">⚙️ Einstellungen</button>
+  <button onclick="location.href='https://SigmaSites.github.io/My-Sites/'">🌐 Meine Webseiten</button>
+</div>
+<div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
+<div class="overlay">
+<h1>Einstellungen</h1>
+<div class="box">
+<h2>Design</h2>
+<select onchange="setTheme(this.value)">
+  <option value="system">Systemeinstellung</option>
+  <option value="dark">Dunkel</option>
+  <option value="light">Hell</option>
+</select>
+</div>
+<div class="box">
+<h2>Hintergrund</h2>
+<label class="fileBtn">Hintergrund auswählen<input type="file" accept="image/*" onchange="setBg(event)"></label>
+<button onclick="resetBg()">Zurücksetzen</button>
+</div>
+</div>
 
+<script>
+const menu=document.getElementById("menu");
+const backdrop=document.getElementById("backdrop");
+
+function toggleMenu(){const open=menu.classList.toggle("open");backdrop.classList.toggle("show",open);document.querySelector(".hamburger").classList.toggle("open",open)}
+function closeMenu(){menu.classList.remove("open");backdrop.classList.remove("show");document.querySelector(".hamburger").classList.remove("open")}
+
+/* Theme */
+function setTheme(mode){
+  localStorage.setItem("themeMode",mode);
+  applyTheme();
+}
+function applyTheme(){
+  const mode=localStorage.getItem("themeMode")||"system";
+  document.body.classList.remove("light");
+  if(mode==="light") document.body.classList.add("light");
+  if(mode==="system" && window.matchMedia("(prefers-color-scheme: light)").matches) document.body.classList.add("light");
+}
+
+/* Hintergrund */
+function setBg(e){
+  const r=new FileReader();
+  r.onload=()=>{
+    document.body.style.backgroundImage=`url(${r.result})`;
+    localStorage.setItem("bg",r.result);
+  };
+  r.readAsDataURL(e.target.files[0]);
+}
+function resetBg(){
+  localStorage.removeItem("bg");
+  document.body.style.backgroundImage="";
+}
+applyTheme();
+if(localStorage.getItem("bg")) document.body.style.backgroundImage=`url(${localStorage.getItem("bg")})`;
+</script>
+</body>
+</html>
