@@ -1,1 +1,58 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+<meta charset="UTF-8">
+<title>Beginpage – Verlauf</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+/* Gleiche Styles wie index.html, nur Inhalte #home entfernt */
+*{box-sizing:border-box}
+/* ... (alles CSS von index.html, unverändert, außer Startseite-inhalt) ... */
+</style>
+</head>
+<body>
+<div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+<div class="menu" id="menu">
+  <button onclick="location.href='index.html'">🏠 Startseite</button>
+  <button onclick="location.href='history.html'">🕘 Verlauf</button>
+  <button onclick="location.href='settings.html'">⚙️ Einstellungen</button>
+  <button onclick="location.href='https://SigmaSites.github.io/My-Sites/'">🌐 Meine Webseiten</button>
+</div>
+<div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
+<div class="overlay">
+<h1>Verlauf</h1>
+<div class="box">
+  <button onclick="clearHistory()" style="background:#e53935">🗑 Verlauf löschen</button>
+  <ul id="historyList" style="margin-top:10px"></ul>
+</div>
+</div>
 
+<script>
+const menu=document.getElementById("menu");
+const backdrop=document.getElementById("backdrop");
+
+function toggleMenu(){const open=menu.classList.toggle("open");backdrop.classList.toggle("show",open);document.querySelector(".hamburger").classList.toggle("open",open)}
+function closeMenu(){menu.classList.remove("open");backdrop.classList.remove("show");document.querySelector(".hamburger").classList.remove("open")}
+
+function loadHistory(){
+  const h=JSON.parse(localStorage.getItem("history")||"[]");
+  const list=document.getElementById("historyList");
+  list.innerHTML="";
+  h.slice().reverse().forEach((e,i)=>{
+    list.innerHTML+=`<li style="display:flex;justify-content:space-between">${e}<button class="delete" onclick="deleteHistory(${h.length-1-i})">X</button></li>`;
+  });
+}
+function deleteHistory(i){
+  const h=JSON.parse(localStorage.getItem("history")||"[]");
+  h.splice(i,1);
+  localStorage.setItem("history",JSON.stringify(h));
+  loadHistory();
+}
+function clearHistory(){
+  localStorage.removeItem("history");
+  loadHistory();
+}
+loadHistory();
+</script>
+</body>
+</html>
