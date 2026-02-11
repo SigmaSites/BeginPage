@@ -2,92 +2,291 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<title>Beginpage – Startseite</title>
+<title>Beginpage</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
 <style>
 *{box-sizing:border-box}
+
 :root{
-  --bg:#111; --overlay:rgba(0,0,0,.6);
-  --box:rgba(40,40,40,.9); --text:#fff; --input:#222;
+  --bg:#111;
+  --overlay:rgba(0,0,0,.6);
+  --box:rgba(40,40,40,.9);
+  --text:#fff;
+  --input:#222;
 }
 body.light{
-  --bg:#f2f2f2; --overlay:rgba(255,255,255,.85);
-  --box:#fff; --text:#000; --input:#fff;
+  --bg:#f2f2f2;
+  --overlay:rgba(255,255,255,.85);
+  --box:#fff;
+  --text:#000;
+  --input:#fff;
 }
-html,body{margin:0;padding:0;min-height:100%;font-family:Arial,sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+
+html,body{
+  margin:0;
+  padding:0;
+  min-height:100%;
+  font-family:Arial,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  overflow-x:hidden;
+}
 body{background-size:cover;background-position:center}
-.overlay{min-height:100vh;padding:80px 20px 40px;background:var(--overlay)}
+
+.overlay{
+  min-height:100vh;
+  padding:80px 20px 40px;
+  background:var(--overlay);
+}
+
 h1{text-align:center;margin:0 0 25px}
 h2{margin:0 0 10px}
 .hidden{display:none}
-.box{background:var(--box);border-radius:10px;padding:15px;max-width:800px;margin:0 auto 20px}
-input,button,select{width:100%;padding:10px;margin-top:8px;border-radius:6px;font-size:14px;background:var(--input);color:var(--text);border:none}
-body.light input,body.light button,body.light select{border:1px solid #000}
+
+.box{
+  background:var(--box);
+  border-radius:10px;
+  padding:15px;
+  max-width:800px;
+  margin:0 auto 20px;
+}
+
+input,button,select{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border-radius:6px;
+  font-size:14px;
+  background:var(--input);
+  color:var(--text);
+  border:none;
+}
+body.light input,
+body.light button,
+body.light select{
+  border:1px solid #000;
+}
+
 button{background:#2196f3;color:#fff;cursor:pointer}
+
 ul{list-style:none;padding:0;margin:0}
-#sites{display:flex;gap:20px;flex-wrap:wrap;justify-content:center;margin-top:15px}
-#sites li{width:120px;height:120px;background:var(--box);border-radius:16px;display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:grab;position:relative;transition:.2s}
+
+/* Seiten als Quadrate */
+#sites{
+  display:flex;
+  gap:20px;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:15px;
+}
+
+#sites li{
+  width:120px;
+  height:120px;
+  background:var(--box);
+  border-radius:16px;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  cursor:grab;
+  position:relative;
+  transition:.2s;
+}
+
 #sites li:hover{transform:scale(1.05)}
-#sites li a{margin-top:8px;font-size:14px;text-align:center;text-decoration:none;color:#2196f3}
-.delete{background:#e53935;width:22px;height:22px;padding:0;font-size:12px;line-height:22px;text-align:center;border-radius:50%;position:absolute;top:6px;right:6px}
+
+#sites li a{
+  margin-top:8px;
+  font-size:14px;
+  text-align:center;
+  text-decoration:none;
+  color:#2196f3;
+}
+
+/* X-Button oben rechts */
+.delete{
+  background:#e53935;
+  width:22px;
+  height:22px;
+  padding:0;
+  font-size:12px;
+  line-height:22px;
+  text-align:center;
+  border-radius:50%;
+  position:absolute;
+  top:6px;
+  right:6px;
+}
+
 .icon{width:40px;height:40px;border-radius:8px}
+
 input[type=file]{display:none}
-.fileBtn{display:block;background:#333;padding:10px;border-radius:6px;margin-top:8px;cursor:pointer;text-align:center}
+.fileBtn{
+  display:block;
+  background:#333;
+  padding:10px;
+  border-radius:6px;
+  margin-top:8px;
+  cursor:pointer;
+  text-align:center;
+}
 body.light .fileBtn{background:#ddd}
-.hamburger{position:fixed;top:15px;right:15px;width:30px;height:22px;cursor:pointer;z-index:1002}
-.hamburger span{position:absolute;width:100%;height:3px;background:var(--text);transition:.25s}
+
+/* Menü */
+.hamburger{
+  position:fixed;
+  top:15px;
+  right:15px;
+  width:30px;
+  height:22px;
+  cursor:pointer;
+  z-index:1002;
+}
+.hamburger span{
+  position:absolute;
+  width:100%;
+  height:3px;
+  background:var(--text);
+  transition:.25s;
+}
 .hamburger span:nth-child(1){top:0}
 .hamburger span:nth-child(2){top:9px}
 .hamburger span:nth-child(3){top:18px}
 .hamburger.open span:nth-child(1){top:9px;transform:rotate(45deg)}
 .hamburger.open span:nth-child(2){opacity:0}
 .hamburger.open span:nth-child(3){top:9px;transform:rotate(-45deg)}
-.menu{position:fixed;top:0;right:0;width:230px;height:100%;background:#1e1e1e;padding:70px 20px;transform:translateX(100%);transition:.25s;z-index:1001}
+
+.menu{
+  position:fixed;
+  top:0;
+  right:0;
+  width:230px;
+  height:100%;
+  background:#1e1e1e;
+  padding:70px 20px;
+  transform:translateX(100%);
+  transition:.25s;
+  z-index:1001;
+}
 body.light .menu{background:#fff}
 .menu.open{transform:translateX(0)}
-.menu button{background:none;color:var(--text);text-align:left;margin-bottom:12px;font-size:16px}
-.backdrop{position:fixed;inset:0;background:rgba(0,0,0,.4);display:none;z-index:1000}
+.menu button{
+  background:none;
+  color:var(--text);
+  text-align:left;
+  margin-bottom:12px;
+  font-size:16px;
+}
+
+.backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;
+  z-index:1000;
+}
 .backdrop.show{display:block}
 </style>
 </head>
+
 <body>
-<div class="hamburger" onclick="toggleMenu()"><span></span><span></span><span></span></div>
+
+<div class="hamburger" onclick="toggleMenu()">
+  <span></span><span></span><span></span>
+</div>
+
 <div class="menu" id="menu">
-  <button onclick="location.href='index.html'">🏠 Startseite</button>
-  <button onclick="location.href='history.html'">🕘 Verlauf</button>
-  <button onclick="location.href='settings.html'">⚙️ Einstellungen</button>
-  <button onclick="location.href='https://SigmaSites.github.io/My-Sites/'">🌐 Meine Webseiten</button>
+  <button onclick="showPage('home')">🏠 Startseite</button>
+  <button onclick="showPage('history')">🕘 Verlauf</button>
+  <button onclick="showPage('settings')">⚙️ Einstellungen</button>
+  <button onclick="openWebsites()">🌐 Meine Webseiten</button>
 </div>
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
-<div class="overlay">
-<h1>Beginpage</h1>
 
-<div class="box">
-  <input id="searchInput" placeholder="Mit deiner 1. Suche beginnen">
-  <button onclick="doSearch()">Suchen</button>
+<div class="overlay">
+<h1 id="title">Beginpage</h1>
+
+<div id="home">
+  <div class="box">
+    <input id="searchInput" placeholder="Mit deiner 1. Suche beginnen">
+    <button onclick="doSearch()">Suchen</button>
+  </div>
+
+  <div class="box">
+    <h2>Eigene Seiten</h2>
+    <input id="siteName" placeholder="Name">
+    <input id="siteUrl" placeholder="https://">
+    <label class="fileBtn">
+      Icon auswählen
+      <input id="iconFile" type="file" accept="image/*">
+    </label>
+    <button onclick="addSite()">Hinzufügen</button>
+    <ul id="sites"></ul>
+  </div>
 </div>
 
-<div class="box">
-<h2>Eigene Seiten</h2>
-<input id="siteName" placeholder="Name">
-<input id="siteUrl" placeholder="https://">
-<label class="fileBtn">Icon auswählen<input id="iconFile" type="file" accept="image/*"></label>
-<button onclick="addSite()">Hinzufügen</button>
-<ul id="sites"></ul>
+<div id="history" class="hidden">
+  <div class="box">
+    <button onclick="clearHistory()" style="background:#e53935">🗑 Verlauf löschen</button>
+    <ul id="historyList" style="margin-top:10px"></ul>
+  </div>
+</div>
+
+<div id="settings" class="hidden">
+  <div class="box">
+    <h2>Design</h2>
+    <select onchange="setTheme(this.value)">
+      <option value="system">Systemeinstellung</option>
+      <option value="dark">Dunkel</option>
+      <option value="light">Hell</option>
+    </select>
+  </div>
+
+  <div class="box">
+    <h2>Hintergrund</h2>
+    <label class="fileBtn">
+      Hintergrund auswählen
+      <input type="file" accept="image/*" onchange="setBg(event)">
+    </label>
+    <button onclick="resetBg()">Zurücksetzen</button>
+  </div>
 </div>
 </div>
 
 <script>
 const menu=document.getElementById("menu");
 const backdrop=document.getElementById("backdrop");
+const hamburger=document.querySelector(".hamburger");
+const title=document.getElementById("title");
 const sitesEl=document.getElementById("sites");
-let dragIndex=null;
 
-function toggleMenu(){const open=menu.classList.toggle("open");backdrop.classList.toggle("show",open);document.querySelector(".hamburger").classList.toggle("open",open)}
-function closeMenu(){menu.classList.remove("open");backdrop.classList.remove("show");document.querySelector(".hamburger").classList.remove("open")}
+function toggleMenu(){
+  const open=menu.classList.toggle("open");
+  backdrop.classList.toggle("show",open);
+  hamburger.classList.toggle("open",open);
+}
+function closeMenu(){
+  menu.classList.remove("open");
+  backdrop.classList.remove("show");
+  hamburger.classList.remove("open");
+}
+function showPage(p){
+  document.querySelectorAll("#home,#history,#settings")
+  .forEach(e=>e.classList.add("hidden"));
+  document.getElementById(p).classList.remove("hidden");
+  title.textContent=p==="history"?"Verlauf":"Beginpage";
+  closeMenu();
+  if(p==="history") loadHistory();
+}
+function openWebsites(){
+  window.open("https://SigmaSites.github.io/My-Sites/","_self");
+}
 
+/* Suche */
 function doSearch(){
-  const q=document.getElementById("searchInput").value.trim();
+  const q=searchInput.value.trim();
   if(!q)return;
   const h=JSON.parse(localStorage.getItem("history")||"[]");
   h.push(q);
@@ -95,41 +294,118 @@ function doSearch(){
   window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
 }
 
-/* Eigene Seiten */
+/* Verlauf */
+function loadHistory(){
+  const h=JSON.parse(localStorage.getItem("history")||"[]");
+  historyList.innerHTML="";
+  h.slice().reverse().forEach((e,i)=>{
+    historyList.innerHTML+=`
+    <li style="display:flex;justify-content:space-between">
+      ${e}
+      <button class="delete" onclick="deleteHistory(${h.length-1-i})">X</button>
+    </li>`;
+  });
+}
+function deleteHistory(i){
+  const h=JSON.parse(localStorage.getItem("history")||"[]");
+  h.splice(i,1);
+  localStorage.setItem("history",JSON.stringify(h));
+  loadHistory();
+}
+function clearHistory(){
+  localStorage.removeItem("history");
+  loadHistory();
+}
+
+/* Seiten */
 function addSite(){
-  const n=document.getElementById("siteName").value.trim();
-  const u=document.getElementById("siteUrl").value.trim();
-  const f=document.getElementById("iconFile").files[0];
+  const n=siteName.value.trim();
+  const u=siteUrl.value.trim();
   if(!n||!u)return;
-  if(f){const r=new FileReader(); r.onload=()=>saveSite(n,u,r.result); r.readAsDataURL(f)}
-  else saveSite(n,u,"");
+  const f=iconFile.files[0];
+  if(f){
+    const r=new FileReader();
+    r.onload=()=>saveSite(n,u,r.result);
+    r.readAsDataURL(f);
+  }else saveSite(n,u,"");
 }
 function saveSite(n,u,i){
+  let icon=i;
+  if(!icon){
+    try{icon="https://www.google.com/s2/favicons?domain="+new URL(u).hostname}catch{}
+  }
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  let icon=i||("https://www.google.com/s2/favicons?domain="+new URL(u).hostname);
   s.push({n,u,i:icon});
   localStorage.setItem("sites",JSON.stringify(s));
   loadSites();
 }
+
 function loadSites(){
   sitesEl.innerHTML="";
   const s=JSON.parse(localStorage.getItem("sites")||"[]");
   s.forEach((e,i)=>{
     const li=document.createElement("li");
-    li.innerHTML=`<img class="icon" src="${e.i}"><a href="${e.u}" target="_blank">${e.n}</a><button class="delete">X</button>`;
+    li.innerHTML=`
+      <img class="icon" src="${e.i}">
+      <a href="${e.u}" target="_blank">${e.n}</a>
+      <button class="delete">X</button>
+    `;
     li.querySelector(".delete").onclick=()=>{
       s.splice(i,1);
       localStorage.setItem("sites",JSON.stringify(s));
       loadSites();
     };
+
     li.draggable=true;
     li.ondragstart=()=>dragIndex=i;
     li.ondragover=e=>e.preventDefault();
-    li.ondrop=()=>{const item=s.splice(dragIndex,1)[0]; s.splice(i,0,item); localStorage.setItem("sites",JSON.stringify(s)); loadSites();};
+    li.ondrop=()=>{
+      const item=s.splice(dragIndex,1)[0];
+      s.splice(i,0,item);
+      localStorage.setItem("sites",JSON.stringify(s));
+      loadSites();
+    };
+
     sitesEl.appendChild(li);
   });
 }
+
+/* Theme */
+function setTheme(mode){
+  localStorage.setItem("themeMode",mode);
+  applyTheme();
+}
+function applyTheme(){
+  const mode=localStorage.getItem("themeMode")||"system";
+  document.body.classList.remove("light");
+  if(mode==="light") document.body.classList.add("light");
+  if(mode==="system" &&
+    window.matchMedia("(prefers-color-scheme: light)").matches)
+      document.body.classList.add("light");
+}
+
+/* Hintergrund */
+function setBg(e){
+  const r=new FileReader();
+  r.onload=()=>{
+    document.body.style.backgroundImage=`url(${r.result})`;
+    localStorage.setItem("bg",r.result);
+  };
+  r.readAsDataURL(e.target.files[0]);
+}
+function resetBg(){
+  localStorage.removeItem("bg");
+  document.body.style.backgroundImage="";
+}
+
+/* Init */
+let dragIndex=null;
 loadSites();
+loadHistory();
+applyTheme();
+if(localStorage.getItem("bg"))
+  document.body.style.backgroundImage=`url(${localStorage.getItem("bg")})`;
 </script>
+
 </body>
 </html>
