@@ -72,26 +72,6 @@ button{background:#2196f3;color:#fff;cursor:pointer}
 
 ul{list-style:none;padding:0;margin:0}
 
-.icon{width:40px;height:40px;border-radius:8px}
-
-.delete{
-  background:#e53935;
-  padding:4px 8px;
-  border-radius:4px;
-}
-
-input[type=file]{display:none}
-.fileBtn{
-  display:block;
-  background:#333;
-  padding:10px;
-  border-radius:6px;
-  margin-top:8px;
-  cursor:pointer;
-  text-align:center;
-}
-body.light .fileBtn{background:#ddd}
-
 /* Seiten als Quadrate */
 #sites{
   display:flex;
@@ -125,11 +105,34 @@ body.light .fileBtn{background:#ddd}
   color:#2196f3;
 }
 
-#sites li .delete{
+/* X-Button oben rechts */
+.delete{
+  background:#e53935;
+  width:22px;
+  height:22px;
+  padding:0;
+  font-size:12px;
+  line-height:22px;
+  text-align:center;
+  border-radius:50%;
   position:absolute;
   top:6px;
   right:6px;
 }
+
+.icon{width:40px;height:40px;border-radius:8px}
+
+input[type=file]{display:none}
+.fileBtn{
+  display:block;
+  background:#333;
+  padding:10px;
+  border-radius:6px;
+  margin-top:8px;
+  cursor:pointer;
+  text-align:center;
+}
+body.light .fileBtn{background:#ddd}
 
 /* Menü */
 .hamburger{
@@ -258,8 +261,6 @@ const backdrop=document.getElementById("backdrop");
 const hamburger=document.querySelector(".hamburger");
 const title=document.getElementById("title");
 const sitesEl=document.getElementById("sites");
-
-let dragIndex=null;
 
 function toggleMenu(){
   const open=menu.classList.toggle("open");
@@ -398,6 +399,7 @@ function resetBg(){
 }
 
 /* Init */
+let dragIndex=null;
 loadSites();
 loadHistory();
 applyTheme();
