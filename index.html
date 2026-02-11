@@ -39,7 +39,7 @@ body{
 }
 
 .overlay{
-  min-height:100vh; /* FIX: kein schwarzer Rand mehr */
+  min-height:100vh;
   padding:80px 20px 40px;
   background:var(--overlay);
 }
@@ -56,7 +56,7 @@ h2{margin:0 0 10px}
   margin:0 auto 20px;
 }
 
-input,button{
+input,button,select{
   width:100%;
   padding:10px;
   margin-top:8px;
@@ -67,7 +67,8 @@ input,button{
   border:none;
 }
 body.light input,
-body.light button{
+body.light button,
+body.light select{
   border:1px solid #000;
 }
 
@@ -87,6 +88,7 @@ li{
   display:flex;
   align-items:center;
   gap:8px;
+  cursor:grab;
 }
 body.light li{background:#eee}
 
@@ -184,14 +186,13 @@ body.light .menu{background:#fff}
   <button onclick="showPage('history')">🕘 Verlauf</button>
   <button onclick="showPage('settings')">⚙️ Einstellungen</button>
   <button onclick="openWebsites()">🌐 Meine Webseiten</button>
-
 </div>
+
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
 <div class="overlay">
 <h1 id="title">Beginpage</h1>
 
-<!-- START -->
 <div id="home">
   <div class="box">
     <input id="searchInput" placeholder="Mit deiner 1. Suche beginnen">
@@ -202,18 +203,15 @@ body.light .menu{background:#fff}
     <h2>Eigene Seiten</h2>
     <input id="siteName" placeholder="Name">
     <input id="siteUrl" placeholder="https://">
-
     <label class="fileBtn">
       Icon auswählen
       <input id="iconFile" type="file" accept="image/*">
     </label>
-
     <button onclick="addSite()">Hinzufügen</button>
     <ul id="sites"></ul>
   </div>
 </div>
 
-<!-- VERLAUF -->
 <div id="history" class="hidden">
   <div class="box">
     <button onclick="clearHistory()" style="background:#e53935">🗑 Verlauf löschen</button>
@@ -221,11 +219,14 @@ body.light .menu{background:#fff}
   </div>
 </div>
 
-<!-- EINSTELLUNGEN -->
 <div id="settings" class="hidden">
   <div class="box">
     <h2>Design</h2>
-    <button onclick="toggleTheme()">Dark / Light wechseln</button>
+    <select onchange="setTheme(this.value)" id="themeSelect">
+      <option value="system">Systemeinstellung</option>
+      <option value="light">Hell</option>
+      <option value="dark">Dunkel</option>
+    </select>
   </div>
 
   <div class="box">
@@ -268,8 +269,9 @@ function showPage(p){
   closeMenu();
   if(p==="history") loadHistory();
 }
+
 function openWebsites(){
-  window.open("https://SigmaSites.github.io/My-Sites/", "_self");
+  window.open("https://SigmaSites.github.io/My-Sites/","_self");
 }
 
 /* Suche */
@@ -282,7 +284,7 @@ function doSearch(){
   window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
 }
 
-/* Verlauf */
+/* Verlauf einzeln löschbar */
 function loadHistory(){
   const h=JSON.parse(localStorage.getItem("history")||"[]");
   historyList.innerHTML="";
@@ -290,16 +292,55 @@ function loadHistory(){
     historyList.innerHTML="<li>Noch kein Verlauf.</li>";
     return;
   }
-  h.slice().reverse().forEach(e=>{
-    historyList.innerHTML+=`<li>${e}</li>`;
+  h.slice().reverse().forEach((e,i)=>{
+    historyList.innerHTML+=`
+      <li>
+        <span style="flex:1">${e}</span>
+        <button class="delete" onclick="deleteHistory(${h.length-1-i})">X</button>
+      </li>`;
   });
+}
+function deleteHistory(i){
+  const h=JSON.parse(localStorage.getItem("history")||"[]");
+  h.splice(i,1);
+  localStorage.setItem("history",JSON.stringify(h));
+  loadHistory();
 }
 function clearHistory(){
   localStorage.removeItem("history");
   loadHistory();
 }
 
-/* Eigene Seiten */
+/* Drag & Drop Seiten */
+let dragIndex=null;
+
+function loadSites(){
+  sites.innerHTML="";
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  s.forEach((e,i)=>{
+    sites.innerHTML+=`
+    <li draggable="true"
+        ondragstart="dragStart(${i})"
+        ondragover="event.preventDefault()"
+        ondrop="dropSite(${i})">
+      <img class="icon" src="${e.i}">
+      <a href="${e.u}" target="_blank">${e.n}</a>
+      <button class="delete" onclick="deleteSite(${i})">X</button>
+    </li>`;
+  });
+}
+
+function dragStart(i){ dragIndex=i; }
+
+function dropSite(i){
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
+  const moved=s.splice(dragIndex,1)[0];
+  s.splice(i,0,moved);
+  localStorage.setItem("sites",JSON.stringify(s));
+  loadSites();
+}
+
+/* Seiten hinzufügen */
 function addSite(){
   const n=siteName.value.trim();
   const u=siteUrl.value.trim();
@@ -322,30 +363,31 @@ function saveSite(n,u,i){
   siteName.value=siteUrl.value=iconFile.value="";
   loadSites();
 }
-function loadSites(){
-  sites.innerHTML="";
-  JSON.parse(localStorage.getItem("sites")||"[]").forEach((e,i)=>{
-    sites.innerHTML+=`
-    <li>
-      <img class="icon" src="${e.i}">
-      <a href="${e.u}" target="_blank">${e.n}</a>
-      <button class="delete" onclick="deleteSite(${i})">X</button>
-    </li>`;
-  });
-}
 function deleteSite(i){
-  const s=JSON.parse(localStorage.getItem("sites"));
+  const s=JSON.parse(localStorage.getItem("sites")||"[]");
   s.splice(i,1);
   localStorage.setItem("sites",JSON.stringify(s));
   loadSites();
 }
 
-/* Theme */
-function toggleTheme(){
-  document.body.classList.toggle("light");
-  localStorage.setItem("theme",
-    document.body.classList.contains("light")?"light":"dark");
+/* Design Auswahl */
+function setTheme(mode){
+  localStorage.setItem("theme",mode);
+  applyTheme();
 }
+function applyTheme(){
+  const mode=localStorage.getItem("theme")||"system";
+  themeSelect.value=mode;
+  if(mode==="light") document.body.classList.add("light");
+  else if(mode==="dark") document.body.classList.remove("light");
+  else{
+    document.body.classList.toggle("light",
+      !window.matchMedia("(prefers-color-scheme: dark)").matches);
+  }
+}
+
+window.matchMedia("(prefers-color-scheme: dark)")
+  .addEventListener("change",applyTheme);
 
 /* Hintergrund */
 function setBg(e){
@@ -363,10 +405,9 @@ function resetBg(){
 
 /* Init */
 loadSites();
+applyTheme();
 if(localStorage.getItem("bg"))
   document.body.style.backgroundImage=`url(${localStorage.getItem("bg")})`;
-if(localStorage.getItem("theme")==="light")
-  document.body.classList.add("light");
 </script>
 
 </body>
