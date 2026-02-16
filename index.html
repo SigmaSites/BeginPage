@@ -6,7 +6,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
 <style>
-*{box-sizing:border-box}
+*{box-sizing:border-box;margin:0;padding:0}
 
 :root{
   --bg:#111;
@@ -23,16 +23,13 @@ body.light{
   --input:#fff;
 }
 
-html,body{
-  margin:0;
-  padding:0;
-  min-height:100%;
+body{
   font-family:Arial,sans-serif;
   background:var(--bg);
   color:var(--text);
-  overflow-x:hidden;
+  background-size:cover;
+  background-position:center;
 }
-body{background-size:cover;background-position:center}
 
 .overlay{
   min-height:100vh;
@@ -40,9 +37,9 @@ body{background-size:cover;background-position:center}
   background:var(--overlay);
 }
 
-h1{text-align:center;margin:0 0 25px}
-h2{margin:0 0 10px}
 .hidden{display:none}
+h1{text-align:center;margin-bottom:25px}
+h2{margin-bottom:10px}
 
 .box{
   background:var(--box);
@@ -70,9 +67,9 @@ body.light select{
 
 button{background:#2196f3;color:#fff;cursor:pointer}
 
-ul{list-style:none;padding:0;margin:0}
+ul{list-style:none}
 
-/* Seiten als Quadrate */
+/* Seiten Grid */
 #sites{
   display:flex;
   gap:20px;
@@ -90,27 +87,30 @@ ul{list-style:none;padding:0;margin:0}
   flex-direction:column;
   align-items:center;
   justify-content:center;
-  cursor:grab;
   position:relative;
+  cursor:grab;
   transition:.2s;
+  user-select:none;
+  touch-action:none;
 }
 
-#sites li:hover{transform:scale(1.05)}
+#sites li.dragging{
+  opacity:.4;
+}
 
 #sites li a{
   margin-top:8px;
   font-size:14px;
-  text-align:center;
   text-decoration:none;
   color:#2196f3;
+  text-align:center;
 }
 
-/* X-Button oben rechts */
+/* Runder X Button */
 .delete{
   background:#e53935;
   width:22px;
   height:22px;
-  padding:0;
   font-size:12px;
   line-height:22px;
   text-align:center;
@@ -120,7 +120,11 @@ ul{list-style:none;padding:0;margin:0}
   right:6px;
 }
 
-.icon{width:40px;height:40px;border-radius:8px}
+.icon{
+  width:40px;
+  height:40px;
+  border-radius:8px;
+}
 
 input[type=file]{display:none}
 .fileBtn{
@@ -194,14 +198,14 @@ body.light .menu{background:#fff}
 <body>
 
 <div class="hamburger" onclick="toggleMenu()">
-  <span></span><span></span><span></span>
+<span></span><span></span><span></span>
 </div>
 
 <div class="menu" id="menu">
-  <button onclick="showPage('home')">🏠 Startseite</button>
-  <button onclick="showPage('history')">🕘 Verlauf</button>
-  <button onclick="showPage('settings')">⚙️ Einstellungen</button>
-  <button onclick="openWebsites()">🌐 Meine Webseiten</button>
+<button onclick="showPage('home')">🏠 Startseite</button>
+<button onclick="showPage('history')">🕘 Verlauf</button>
+<button onclick="showPage('settings')">⚙️ Einstellungen</button>
+<button onclick="openWebsites()">🌐 Meine Webseiten</button>
 </div>
 <div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
@@ -209,202 +213,250 @@ body.light .menu{background:#fff}
 <h1 id="title">Beginpage</h1>
 
 <div id="home">
-  <div class="box">
-    <input id="searchInput" placeholder="Mit deiner 1. Suche beginnen">
-    <button onclick="doSearch()">Suchen</button>
-  </div>
+<div class="box">
+<input id="searchInput" placeholder="Mit deiner 1. Suche beginnen">
+<button onclick="doSearch()">Suchen</button>
+</div>
 
-  <div class="box">
-    <h2>Eigene Seiten</h2>
-    <input id="siteName" placeholder="Name">
-    <input id="siteUrl" placeholder="https://">
-    <label class="fileBtn">
-      Icon auswählen
-      <input id="iconFile" type="file" accept="image/*">
-    </label>
-    <button onclick="addSite()">Hinzufügen</button>
-    <ul id="sites"></ul>
-  </div>
+<div class="box">
+<h2>Eigene Seiten</h2>
+<input id="siteName" placeholder="Name">
+<input id="siteUrl" placeholder="https://">
+<label class="fileBtn">
+Icon auswählen
+<input id="iconFile" type="file" accept="image/*">
+</label>
+<button onclick="addSite()">Hinzufügen</button>
+<ul id="sites"></ul>
+</div>
 </div>
 
 <div id="history" class="hidden">
-  <div class="box">
-    <button onclick="clearHistory()" style="background:#e53935">🗑 Verlauf löschen</button>
-    <ul id="historyList" style="margin-top:10px"></ul>
-  </div>
+<div class="box">
+<button onclick="clearHistory()" style="background:#e53935">🗑 Verlauf löschen</button>
+<ul id="historyList" style="margin-top:10px"></ul>
+</div>
 </div>
 
 <div id="settings" class="hidden">
-  <div class="box">
-    <h2>Design</h2>
-    <select onchange="setTheme(this.value)">
-      <option value="system">Systemeinstellung</option>
-      <option value="dark">Dunkel</option>
-      <option value="light">Hell</option>
-    </select>
-  </div>
+<div class="box">
+<h2>Design</h2>
+<select onchange="setTheme(this.value)">
+<option value="system">Systemeinstellung</option>
+<option value="dark">Dunkel</option>
+<option value="light">Hell</option>
+</select>
+</div>
 
-  <div class="box">
-    <h2>Hintergrund</h2>
-    <label class="fileBtn">
-      Hintergrund auswählen
-      <input type="file" accept="image/*" onchange="setBg(event)">
-    </label>
-    <button onclick="resetBg()">Zurücksetzen</button>
-  </div>
+<div class="box">
+<h2>Hintergrund</h2>
+<label class="fileBtn">
+Hintergrund auswählen
+<input type="file" accept="image/*" onchange="setBg(event)">
+</label>
+<button onclick="resetBg()">Zurücksetzen</button>
+</div>
 </div>
 </div>
 
 <script>
-const menu=document.getElementById("menu");
-const backdrop=document.getElementById("backdrop");
-const hamburger=document.querySelector(".hamburger");
-const title=document.getElementById("title");
 const sitesEl=document.getElementById("sites");
+let dragged=null;
 
+/* Menü */
 function toggleMenu(){
-  const open=menu.classList.toggle("open");
-  backdrop.classList.toggle("show",open);
-  hamburger.classList.toggle("open",open);
+menu.classList.toggle("open");
+backdrop.classList.toggle("show");
+hamburger.classList.toggle("open");
 }
 function closeMenu(){
-  menu.classList.remove("open");
-  backdrop.classList.remove("show");
-  hamburger.classList.remove("open");
+menu.classList.remove("open");
+backdrop.classList.remove("show");
+hamburger.classList.remove("open");
 }
 function showPage(p){
-  document.querySelectorAll("#home,#history,#settings")
-  .forEach(e=>e.classList.add("hidden"));
-  document.getElementById(p).classList.remove("hidden");
-  title.textContent=p==="history"?"Verlauf":"Beginpage";
-  closeMenu();
-  if(p==="history") loadHistory();
+document.querySelectorAll("#home,#history,#settings")
+.forEach(e=>e.classList.add("hidden"));
+document.getElementById(p).classList.remove("hidden");
+title.textContent=p==="history"?"Verlauf":"Beginpage";
+closeMenu();
+if(p==="history")loadHistory();
 }
 function openWebsites(){
-  window.open("https://SigmaSites.github.io/My-Sites/","_self");
+window.open("https://SigmaSites.github.io/My-Sites/","_self");
 }
 
 /* Suche */
 function doSearch(){
-  const q=searchInput.value.trim();
-  if(!q)return;
-  const h=JSON.parse(localStorage.getItem("history")||"[]");
-  h.push(q);
-  localStorage.setItem("history",JSON.stringify(h));
-  window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
+const q=searchInput.value.trim();
+if(!q)return;
+const h=JSON.parse(localStorage.getItem("history")||"[]");
+h.push(q);
+localStorage.setItem("history",JSON.stringify(h));
+window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
 }
 
 /* Verlauf */
 function loadHistory(){
-  const h=JSON.parse(localStorage.getItem("history")||"[]");
-  historyList.innerHTML="";
-  h.slice().reverse().forEach((e,i)=>{
-    historyList.innerHTML+=`
-    <li style="display:flex;justify-content:space-between">
-      ${e}
-      <button class="delete" onclick="deleteHistory(${h.length-1-i})">X</button>
-    </li>`;
-  });
+const h=JSON.parse(localStorage.getItem("history")||"[]");
+historyList.innerHTML="";
+h.slice().reverse().forEach((e,i)=>{
+historyList.innerHTML+=`
+<li style="display:flex;justify-content:space-between">
+${e}
+<button class="delete" onclick="deleteHistory(${h.length-1-i})">X</button>
+</li>`;
+});
 }
 function deleteHistory(i){
-  const h=JSON.parse(localStorage.getItem("history")||"[]");
-  h.splice(i,1);
-  localStorage.setItem("history",JSON.stringify(h));
-  loadHistory();
+const h=JSON.parse(localStorage.getItem("history")||"[]");
+h.splice(i,1);
+localStorage.setItem("history",JSON.stringify(h));
+loadHistory();
 }
 function clearHistory(){
-  localStorage.removeItem("history");
-  loadHistory();
+localStorage.removeItem("history");
+loadHistory();
 }
 
 /* Seiten */
 function addSite(){
-  const n=siteName.value.trim();
-  const u=siteUrl.value.trim();
-  if(!n||!u)return;
-  const f=iconFile.files[0];
-  if(f){
-    const r=new FileReader();
-    r.onload=()=>saveSite(n,u,r.result);
-    r.readAsDataURL(f);
-  }else saveSite(n,u,"");
+const n=siteName.value.trim();
+const u=siteUrl.value.trim();
+if(!n||!u)return;
+const f=iconFile.files[0];
+if(f){
+const r=new FileReader();
+r.onload=()=>saveSite(n,u,r.result);
+r.readAsDataURL(f);
+}else saveSite(n,u,"");
 }
 function saveSite(n,u,i){
-  let icon=i;
-  if(!icon){
-    try{icon="https://www.google.com/s2/favicons?domain="+new URL(u).hostname}catch{}
-  }
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.push({n,u,i:icon});
-  localStorage.setItem("sites",JSON.stringify(s));
-  loadSites();
+let icon=i;
+if(!icon){
+try{icon="https://www.google.com/s2/favicons?domain="+new URL(u).hostname}catch{}
+}
+const s=JSON.parse(localStorage.getItem("sites")||"[]");
+s.push({n,u,i:icon});
+localStorage.setItem("sites",JSON.stringify(s));
+loadSites();
 }
 
 function loadSites(){
-  sitesEl.innerHTML="";
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.forEach((e,i)=>{
-    const li=document.createElement("li");
-    li.innerHTML=`
-      <img class="icon" src="${e.i}">
-      <a href="${e.u}" target="_blank">${e.n}</a>
-      <button class="delete">X</button>
-    `;
-    li.querySelector(".delete").onclick=()=>{
-      s.splice(i,1);
-      localStorage.setItem("sites",JSON.stringify(s));
-      loadSites();
-    };
+sitesEl.innerHTML="";
+const s=JSON.parse(localStorage.getItem("sites")||"[]");
 
-    li.draggable=true;
-    li.ondragstart=()=>dragIndex=i;
-    li.ondragover=e=>e.preventDefault();
-    li.ondrop=()=>{
-      const item=s.splice(dragIndex,1)[0];
-      s.splice(i,0,item);
-      localStorage.setItem("sites",JSON.stringify(s));
-      loadSites();
-    };
+s.forEach((e,i)=>{
+const li=document.createElement("li");
+li.innerHTML=`
+<img class="icon" src="${e.i}">
+<a href="${e.u}" target="_blank">${e.n}</a>
+<button class="delete">X</button>
+`;
 
-    sitesEl.appendChild(li);
-  });
+li.querySelector(".delete").onclick=()=>{
+s.splice(i,1);
+localStorage.setItem("sites",JSON.stringify(s));
+loadSites();
+};
+
+/* Desktop Drag */
+li.draggable=true;
+li.addEventListener("dragstart",()=>{
+dragged=li;
+li.classList.add("dragging");
+});
+li.addEventListener("dragend",()=>{
+li.classList.remove("dragging");
+saveOrder();
+});
+li.addEventListener("dragover",(e)=>{
+e.preventDefault();
+const after=getAfterElement(e.clientX,e.clientY);
+if(after==null)sitesEl.appendChild(dragged);
+else sitesEl.insertBefore(dragged,after);
+});
+
+/* Touch Drag */
+li.addEventListener("touchstart",()=>{
+dragged=li;
+li.classList.add("dragging");
+});
+li.addEventListener("touchmove",(e)=>{
+e.preventDefault();
+const touch=e.touches[0];
+const after=getAfterElement(touch.clientX,touch.clientY);
+if(after==null)sitesEl.appendChild(dragged);
+else sitesEl.insertBefore(dragged,after);
+},{passive:false});
+li.addEventListener("touchend",()=>{
+li.classList.remove("dragging");
+saveOrder();
+});
+
+sitesEl.appendChild(li);
+});
+}
+
+function getAfterElement(x,y){
+const elements=[...sitesEl.querySelectorAll("li:not(.dragging)")];
+return elements.reduce((closest,child)=>{
+const box=child.getBoundingClientRect();
+const offset=y-box.top-box.height/2;
+if(offset<0 && offset>closest.offset){
+return{offset:offset,element:child};
+}else{
+return closest;
+}
+},{offset:Number.NEGATIVE_INFINITY}).element;
+}
+
+function saveOrder(){
+const items=[...sitesEl.querySelectorAll("li")];
+const s=JSON.parse(localStorage.getItem("sites")||"[]");
+const newOrder=[];
+items.forEach(li=>{
+const name=li.querySelector("a").textContent;
+const found=s.find(e=>e.n===name);
+if(found)newOrder.push(found);
+});
+localStorage.setItem("sites",JSON.stringify(newOrder));
 }
 
 /* Theme */
 function setTheme(mode){
-  localStorage.setItem("themeMode",mode);
-  applyTheme();
+localStorage.setItem("themeMode",mode);
+applyTheme();
 }
 function applyTheme(){
-  const mode=localStorage.getItem("themeMode")||"system";
-  document.body.classList.remove("light");
-  if(mode==="light") document.body.classList.add("light");
-  if(mode==="system" &&
-    window.matchMedia("(prefers-color-scheme: light)").matches)
-      document.body.classList.add("light");
+const mode=localStorage.getItem("themeMode")||"system";
+document.body.classList.remove("light");
+if(mode==="light")document.body.classList.add("light");
+if(mode==="system"&&
+window.matchMedia("(prefers-color-scheme: light)").matches)
+document.body.classList.add("light");
 }
 
 /* Hintergrund */
 function setBg(e){
-  const r=new FileReader();
-  r.onload=()=>{
-    document.body.style.backgroundImage=`url(${r.result})`;
-    localStorage.setItem("bg",r.result);
-  };
-  r.readAsDataURL(e.target.files[0]);
+const r=new FileReader();
+r.onload=()=>{
+document.body.style.backgroundImage=`url(${r.result})`;
+localStorage.setItem("bg",r.result);
+};
+r.readAsDataURL(e.target.files[0]);
 }
 function resetBg(){
-  localStorage.removeItem("bg");
-  document.body.style.backgroundImage="";
+localStorage.removeItem("bg");
+document.body.style.backgroundImage="";
 }
 
 /* Init */
-let dragIndex=null;
 loadSites();
 loadHistory();
 applyTheme();
 if(localStorage.getItem("bg"))
-  document.body.style.backgroundImage=`url(${localStorage.getItem("bg")})`;
+document.body.style.backgroundImage=`url(${localStorage.getItem("bg")})`;
 </script>
 
 </body>
