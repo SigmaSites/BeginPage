@@ -106,8 +106,8 @@ ul{list-style:none}
   text-align:center;
 }
 
-/* Runder X Button */
-.delete{
+/* X im Quadrat */
+#sites .delete{
   background:#e53935;
   width:22px;
   height:22px;
@@ -118,6 +118,14 @@ ul{list-style:none}
   position:absolute;
   top:6px;
   right:6px;
+  padding:0;
+}
+
+/* X im Verlauf */
+#historyList .delete{
+  background:#e53935;
+  padding:4px 8px;
+  border-radius:6px;
 }
 
 .icon{
@@ -319,7 +327,7 @@ localStorage.removeItem("history");
 loadHistory();
 }
 
-/* Seiten */
+/* Seiten + Touch/Drag */
 function addSite(){
 const n=siteName.value.trim();
 const u=siteUrl.value.trim();
@@ -360,8 +368,8 @@ localStorage.setItem("sites",JSON.stringify(s));
 loadSites();
 };
 
-/* Desktop Drag */
 li.draggable=true;
+
 li.addEventListener("dragstart",()=>{
 dragged=li;
 li.classList.add("dragging");
@@ -372,22 +380,16 @@ saveOrder();
 });
 li.addEventListener("dragover",(e)=>{
 e.preventDefault();
-const after=getAfterElement(e.clientX,e.clientY);
-if(after==null)sitesEl.appendChild(dragged);
-else sitesEl.insertBefore(dragged,after);
+moveElement(e.clientY);
 });
 
-/* Touch Drag */
 li.addEventListener("touchstart",()=>{
 dragged=li;
 li.classList.add("dragging");
 });
 li.addEventListener("touchmove",(e)=>{
 e.preventDefault();
-const touch=e.touches[0];
-const after=getAfterElement(touch.clientX,touch.clientY);
-if(after==null)sitesEl.appendChild(dragged);
-else sitesEl.insertBefore(dragged,after);
+moveElement(e.touches[0].clientY);
 },{passive:false});
 li.addEventListener("touchend",()=>{
 li.classList.remove("dragging");
@@ -398,17 +400,21 @@ sitesEl.appendChild(li);
 });
 }
 
-function getAfterElement(x,y){
+function moveElement(y){
 const elements=[...sitesEl.querySelectorAll("li:not(.dragging)")];
-return elements.reduce((closest,child)=>{
+let closest=null;
+let closestOffset=Number.NEGATIVE_INFINITY;
+
+elements.forEach(child=>{
 const box=child.getBoundingClientRect();
 const offset=y-box.top-box.height/2;
-if(offset<0 && offset>closest.offset){
-return{offset:offset,element:child};
-}else{
-return closest;
+if(offset<0 && offset>closestOffset){
+closestOffset=offset;
+closest=child;
 }
-},{offset:Number.NEGATIVE_INFINITY}).element;
+});
+if(closest==null)sitesEl.appendChild(dragged);
+else sitesEl.insertBefore(dragged,closest);
 }
 
 function saveOrder(){
