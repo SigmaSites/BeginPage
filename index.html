@@ -310,6 +310,7 @@ if(!q)return;
 const h=JSON.parse(localStorage.getItem("history")||"[]");
 h.push(q);
 localStorage.setItem("history",JSON.stringify(h));
+searchInput.value="";
 window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
 }
 
