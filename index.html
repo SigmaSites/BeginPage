@@ -205,7 +205,7 @@ body.light .menu{background:#fff}
 
 <body>
 
-<div class="hamburger" onclick="toggleMenu()">
+<div class="hamburger" id="hamburger" onclick="toggleMenu()">
 <span></span><span></span><span></span>
 </div>
 
@@ -269,6 +269,15 @@ Hintergrund auswählen
 
 <script>
 const sitesEl=document.getElementById("sites");
+const hamburger=document.getElementById("hamburger");
+const menu=document.getElementById("menu");
+const backdrop=document.getElementById("backdrop");
+const title=document.getElementById("title");
+const searchInput=document.getElementById("searchInput");
+const historyList=document.getElementById("historyList");
+const siteName=document.getElementById("siteName");
+const siteUrl=document.getElementById("siteUrl");
+const iconFile=document.getElementById("iconFile");
 let dragged=null;
 
 /* Menü */
@@ -286,7 +295,7 @@ function showPage(p){
 document.querySelectorAll("#home,#history,#settings")
 .forEach(e=>e.classList.add("hidden"));
 document.getElementById(p).classList.remove("hidden");
-title.textContent=p==="history"?"Verlauf":"Beginpage";
+title.textContent=p==="history"?"Verlauf":p==="settings"?"Einstellungen":"Beginpage";
 closeMenu();
 if(p==="history")loadHistory();
 }
