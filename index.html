@@ -2,302 +2,467 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
+<title>Beginpage</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Startseite</title>
 
 <style>
+*{box-sizing:border-box;margin:0;padding:0}
+
 :root{
-  --bg:#ffffff;
-  --text:#000000;
-  --card:#f2f2f2;
+  --bg:#111;
+  --overlay:rgba(0,0,0,.6);
+  --box:rgba(40,40,40,.9);
+  --text:#fff;
+  --input:#222;
 }
-body.dark{
-  --bg:#121212;
-  --text:#ffffff;
-  --card:#1e1e1e;
+body.light{
+  --bg:#f2f2f2;
+  --overlay:rgba(255,255,255,.85);
+  --box:#fff;
+  --text:#000;
+  --input:#fff;
 }
+
 body{
-  margin:0;
-  font-family:sans-serif;
+  font-family:Arial,sans-serif;
   background:var(--bg);
   color:var(--text);
+  background-size:cover;
+  background-position:center;
 }
-nav{
-  display:flex;
-  justify-content:space-around;
-  background:var(--card);
-  padding:10px 0;
-}
-nav button{
-  background:none;
-  border:none;
-  font-size:16px;
-}
-section{display:none;padding:15px;}
-section.active{display:block;}
 
-/* SEITEN */
+.overlay{
+  min-height:100vh;
+  padding:80px 20px 40px;
+  background:var(--overlay);
+}
+
+.hidden{display:none}
+h1{text-align:center;margin-bottom:25px}
+h2{margin-bottom:10px}
+
+.box{
+  background:var(--box);
+  border-radius:10px;
+  padding:15px;
+  max-width:800px;
+  margin:0 auto 20px;
+}
+
+input,button,select{
+  width:100%;
+  padding:10px;
+  margin-top:8px;
+  border-radius:6px;
+  font-size:14px;
+  background:var(--input);
+  color:var(--text);
+  border:none;
+}
+body.light input,
+body.light button,
+body.light select{
+  border:1px solid #000;
+}
+
+button{background:#2196f3;color:#fff;cursor:pointer}
+
+ul{list-style:none}
+
+/* Seiten Grid */
 #sites{
   display:flex;
-  gap:15px;
-  overflow-x:auto;
+  gap:20px;
+  flex-wrap:wrap;
+  justify-content:center;
+  margin-top:15px;
 }
+
 #sites li{
-  list-style:none;
-  background:var(--card);
-  width:100px;
-  height:100px;
-  border-radius:15px;
-  position:relative;
+  width:120px;
+  height:120px;
+  background:var(--box);
+  border-radius:16px;
   display:flex;
   flex-direction:column;
-  justify-content:center;
   align-items:center;
-  flex-shrink:0;
+  justify-content:center;
+  position:relative;
+  cursor:grab;
+  transition:.2s;
+  user-select:none;
+  touch-action:none;
 }
-#sites img{
-  width:32px;
-  height:32px;
+
+#sites li.dragging{
+  opacity:.4;
 }
-#sites a{
-  text-decoration:none;
-  color:var(--text);
+
+#sites li a{
+  margin-top:8px;
   font-size:14px;
-  margin-top:5px;
+  text-decoration:none;
+  color:#2196f3;
+  text-align:center;
 }
 
 /* X im Quadrat */
 #sites .delete{
+  background:#e53935;
+  width:22px;
+  height:22px;
+  font-size:12px;
+  line-height:22px;
+  text-align:center;
+  border-radius:50%;
   position:absolute;
   top:6px;
   right:6px;
-  width:22px;
-  height:22px;
-  border-radius:50%;
-  border:none;
-  background:#e53935;
-  color:white;
-  font-size:12px;
   padding:0;
 }
 
-/* Verlauf */
-#historyList li{
-  display:flex;
-  justify-content:space-between;
-  background:var(--card);
-  margin-bottom:8px;
-  padding:8px;
-  border-radius:8px;
-}
+/* X im Verlauf */
 #historyList .delete{
   background:#e53935;
-  border:none;
   padding:4px 8px;
   border-radius:6px;
-  color:white;
 }
 
-/* Formular */
-input,select{
-  padding:8px;
-  margin:5px 0;
+.icon{
+  width:40px;
+  height:40px;
+  border-radius:8px;
+}
+
+input[type=file]{display:none}
+.fileBtn{
+  display:block;
+  background:#333;
+  padding:10px;
+  border-radius:6px;
+  margin-top:8px;
+  cursor:pointer;
+  text-align:center;
+}
+body.light .fileBtn{background:#ddd}
+
+/* Menü */
+.hamburger{
+  position:fixed;
+  top:15px;
+  right:15px;
+  width:30px;
+  height:22px;
+  cursor:pointer;
+  z-index:1002;
+}
+.hamburger span{
+  position:absolute;
   width:100%;
-  box-sizing:border-box;
+  height:3px;
+  background:var(--text);
+  transition:.25s;
 }
-button{
-  padding:8px 12px;
-  margin-top:5px;
+.hamburger span:nth-child(1){top:0}
+.hamburger span:nth-child(2){top:9px}
+.hamburger span:nth-child(3){top:18px}
+.hamburger.open span:nth-child(1){top:9px;transform:rotate(45deg)}
+.hamburger.open span:nth-child(2){opacity:0}
+.hamburger.open span:nth-child(3){top:9px;transform:rotate(-45deg)}
+
+.menu{
+  position:fixed;
+  top:0;
+  right:0;
+  width:230px;
+  height:100%;
+  background:#1e1e1e;
+  padding:70px 20px;
+  transform:translateX(100%);
+  transition:.25s;
+  z-index:1001;
 }
+body.light .menu{background:#fff}
+.menu.open{transform:translateX(0)}
+.menu button{
+  background:none;
+  color:var(--text);
+  text-align:left;
+  margin-bottom:12px;
+  font-size:16px;
+}
+
+.backdrop{
+  position:fixed;
+  inset:0;
+  background:rgba(0,0,0,.4);
+  display:none;
+  z-index:1000;
+}
+.backdrop.show{display:block}
 </style>
 </head>
+
 <body>
 
-<nav>
-  <button onclick="showTab('home')">🏠 Start</button>
-  <button onclick="showTab('history')">📜 Verlauf</button>
-  <button onclick="showTab('settings')">⚙️ Einstellungen</button>
-</nav>
+<div class="hamburger" onclick="toggleMenu()">
+<span></span><span></span><span></span>
+</div>
 
-<section id="home" class="active">
-  <h2>Start</h2>
-  <ul id="sites"></ul>
+<div class="menu" id="menu">
+<button onclick="showPage('home')">🏠 Startseite</button>
+<button onclick="showPage('history')">🕘 Verlauf</button>
+<button onclick="showPage('settings')">⚙️ Einstellungen</button>
+<button onclick="openWebsites()">🌐 Meine Webseiten</button>
+</div>
+<div class="backdrop" id="backdrop" onclick="closeMenu()"></div>
 
-  <h3>Neue Seite</h3>
-  <input id="name" placeholder="Name">
-  <input id="url" placeholder="URL">
-  <input id="icon" placeholder="Icon URL">
-  <button onclick="addSite()">Hinzufügen</button>
-</section>
+<div class="overlay">
+<h1 id="title">Beginpage</h1>
 
-<section id="history">
-  <h2>Verlauf</h2>
-  <ul id="historyList"></ul>
-  <button onclick="clearHistory()">Verlauf komplett löschen</button>
-</section>
+<div id="home">
+<div class="box">
+<input id="searchInput" placeholder="Mit deiner 1. Suche beginnen">
+<button onclick="doSearch()">Suchen</button>
+</div>
 
-<section id="settings">
-  <h2>Einstellungen</h2>
-  <label>Design</label>
-  <select id="themeSelect" onchange="changeTheme()">
-    <option value="system">Systemeinstellung</option>
-    <option value="light">Hell</option>
-    <option value="dark">Dunkel</option>
-  </select>
-</section>
+<div class="box">
+<h2>Eigene Seiten</h2>
+<input id="siteName" placeholder="Name">
+<input id="siteUrl" placeholder="https://">
+<label class="fileBtn">
+Icon auswählen
+<input id="iconFile" type="file" accept="image/*">
+</label>
+<button onclick="addSite()">Hinzufügen</button>
+<ul id="sites"></ul>
+</div>
+</div>
+
+<div id="history" class="hidden">
+<div class="box">
+<button onclick="clearHistory()" style="background:#e53935">🗑 Verlauf löschen</button>
+<ul id="historyList" style="margin-top:10px"></ul>
+</div>
+</div>
+
+<div id="settings" class="hidden">
+<div class="box">
+<h2>Design</h2>
+<select onchange="setTheme(this.value)">
+<option value="system">Systemeinstellung</option>
+<option value="dark">Dunkel</option>
+<option value="light">Hell</option>
+</select>
+</div>
+
+<div class="box">
+<h2>Hintergrund</h2>
+<label class="fileBtn">
+Hintergrund auswählen
+<input type="file" accept="image/*" onchange="setBg(event)">
+</label>
+<button onclick="resetBg()">Zurücksetzen</button>
+</div>
+</div>
+</div>
 
 <script>
 const sitesEl=document.getElementById("sites");
-const historyEl=document.getElementById("historyList");
-
-function showTab(id){
-  document.querySelectorAll("section").forEach(s=>s.classList.remove("active"));
-  document.getElementById(id).classList.add("active");
-}
-
-function addSite(){
-  const n=name.value;
-  const u=url.value;
-  const i=icon.value;
-  if(!n||!u)return;
-
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  s.push({n,u,i});
-  localStorage.setItem("sites",JSON.stringify(s));
-  loadSites();
-  name.value=url.value=icon.value="";
-}
-
 let dragged=null;
 
-function loadSites(){
-  sitesEl.innerHTML="";
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-
-  s.forEach((e,i)=>{
-    const li=document.createElement("li");
-    li.innerHTML=`
-      <button class="delete">X</button>
-      <img src="${e.i||''}">
-      <a href="${e.u}" target="_blank">${e.n}</a>
-    `;
-
-    li.querySelector("a").onclick=()=>addHistory(e.n,e.u);
-
-    li.querySelector(".delete").onclick=()=>{
-      s.splice(i,1);
-      localStorage.setItem("sites",JSON.stringify(s));
-      loadSites();
-    };
-
-    li.draggable=true;
-
-    li.addEventListener("dragstart",()=>dragged=li);
-    li.addEventListener("dragover",e=>{
-      e.preventDefault();
-      const after=getAfter(e.clientX);
-      if(after==null)sitesEl.appendChild(dragged);
-      else sitesEl.insertBefore(dragged,after);
-    });
-    li.addEventListener("dragend",saveOrder);
-
-    li.addEventListener("touchstart",()=>dragged=li);
-    li.addEventListener("touchmove",e=>{
-      e.preventDefault();
-      const touch=e.touches[0];
-      const after=getAfter(touch.clientX);
-      if(after==null)sitesEl.appendChild(dragged);
-      else sitesEl.insertBefore(dragged,after);
-    },{passive:false});
-    li.addEventListener("touchend",saveOrder);
-
-    sitesEl.appendChild(li);
-  });
+/* Menü */
+function toggleMenu(){
+menu.classList.toggle("open");
+backdrop.classList.toggle("show");
+hamburger.classList.toggle("open");
+}
+function closeMenu(){
+menu.classList.remove("open");
+backdrop.classList.remove("show");
+hamburger.classList.remove("open");
+}
+function showPage(p){
+document.querySelectorAll("#home,#history,#settings")
+.forEach(e=>e.classList.add("hidden"));
+document.getElementById(p).classList.remove("hidden");
+title.textContent=p==="history"?"Verlauf":"Beginpage";
+closeMenu();
+if(p==="history")loadHistory();
+}
+function openWebsites(){
+window.open("https://SigmaSites.github.io/My-Sites/","_self");
 }
 
-function getAfter(x){
-  const els=[...sitesEl.querySelectorAll("li")];
-  return els.reduce((closest,child)=>{
-    const box=child.getBoundingClientRect();
-    const offset=x-box.left-box.width/2;
-    if(offset<0&&offset>closest.offset){
-      return{offset:offset,element:child};
-    }else{
-      return closest;
-    }
-  },{offset:Number.NEGATIVE_INFINITY}).element;
+/* Suche */
+function doSearch(){
+const q=searchInput.value.trim();
+if(!q)return;
+const h=JSON.parse(localStorage.getItem("history")||"[]");
+h.push(q);
+localStorage.setItem("history",JSON.stringify(h));
+window.open("https://www.google.com/search?q="+encodeURIComponent(q),"_blank");
+}
+
+/* Verlauf */
+function loadHistory(){
+const h=JSON.parse(localStorage.getItem("history")||"[]");
+historyList.innerHTML="";
+h.slice().reverse().forEach((e,i)=>{
+historyList.innerHTML+=`
+<li style="display:flex;justify-content:space-between">
+${e}
+<button class="delete" onclick="deleteHistory(${h.length-1-i})">X</button>
+</li>`;
+});
+}
+function deleteHistory(i){
+const h=JSON.parse(localStorage.getItem("history")||"[]");
+h.splice(i,1);
+localStorage.setItem("history",JSON.stringify(h));
+loadHistory();
+}
+function clearHistory(){
+localStorage.removeItem("history");
+loadHistory();
+}
+
+/* Seiten + Touch/Drag */
+function addSite(){
+const n=siteName.value.trim();
+const u=siteUrl.value.trim();
+if(!n||!u)return;
+const f=iconFile.files[0];
+if(f){
+const r=new FileReader();
+r.onload=()=>saveSite(n,u,r.result);
+r.readAsDataURL(f);
+}else saveSite(n,u,"");
+}
+function saveSite(n,u,i){
+let icon=i;
+if(!icon){
+try{icon="https://www.google.com/s2/favicons?domain="+new URL(u).hostname}catch{}
+}
+const s=JSON.parse(localStorage.getItem("sites")||"[]");
+s.push({n,u,i:icon});
+localStorage.setItem("sites",JSON.stringify(s));
+loadSites();
+}
+
+function loadSites(){
+sitesEl.innerHTML="";
+const s=JSON.parse(localStorage.getItem("sites")||"[]");
+
+s.forEach((e,i)=>{
+const li=document.createElement("li");
+li.innerHTML=`
+<img class="icon" src="${e.i}">
+<a href="${e.u}" target="_blank">${e.n}</a>
+<button class="delete">X</button>
+`;
+
+li.querySelector(".delete").onclick=()=>{
+s.splice(i,1);
+localStorage.setItem("sites",JSON.stringify(s));
+loadSites();
+};
+
+li.draggable=true;
+
+li.addEventListener("dragstart",()=>{
+dragged=li;
+li.classList.add("dragging");
+});
+li.addEventListener("dragend",()=>{
+li.classList.remove("dragging");
+saveOrder();
+});
+li.addEventListener("dragover",(e)=>{
+e.preventDefault();
+moveElement(e.clientY);
+});
+
+li.addEventListener("touchstart",()=>{
+dragged=li;
+li.classList.add("dragging");
+});
+li.addEventListener("touchmove",(e)=>{
+e.preventDefault();
+moveElement(e.touches[0].clientY);
+},{passive:false});
+li.addEventListener("touchend",()=>{
+li.classList.remove("dragging");
+saveOrder();
+});
+
+sitesEl.appendChild(li);
+});
+}
+
+function moveElement(y){
+const elements=[...sitesEl.querySelectorAll("li:not(.dragging)")];
+let closest=null;
+let closestOffset=Number.NEGATIVE_INFINITY;
+
+elements.forEach(child=>{
+const box=child.getBoundingClientRect();
+const offset=y-box.top-box.height/2;
+if(offset<0 && offset>closestOffset){
+closestOffset=offset;
+closest=child;
+}
+});
+if(closest==null)sitesEl.appendChild(dragged);
+else sitesEl.insertBefore(dragged,closest);
 }
 
 function saveOrder(){
-  const items=[...sitesEl.querySelectorAll("li")];
-  const s=JSON.parse(localStorage.getItem("sites")||"[]");
-  const newOrder=[];
-  items.forEach(li=>{
-    const name=li.querySelector("a").textContent;
-    const found=s.find(e=>e.n===name);
-    if(found)newOrder.push(found);
-  });
-  localStorage.setItem("sites",JSON.stringify(newOrder));
+const items=[...sitesEl.querySelectorAll("li")];
+const s=JSON.parse(localStorage.getItem("sites")||"[]");
+const newOrder=[];
+items.forEach(li=>{
+const name=li.querySelector("a").textContent;
+const found=s.find(e=>e.n===name);
+if(found)newOrder.push(found);
+});
+localStorage.setItem("sites",JSON.stringify(newOrder));
 }
 
-function addHistory(n,u){
-  const h=JSON.parse(localStorage.getItem("history")||"[]");
-  h.push({n,u});
-  localStorage.setItem("history",JSON.stringify(h));
-  loadHistory();
+/* Theme */
+function setTheme(mode){
+localStorage.setItem("themeMode",mode);
+applyTheme();
 }
-
-function loadHistory(){
-  historyEl.innerHTML="";
-  const h=JSON.parse(localStorage.getItem("history")||"[]");
-
-  h.forEach((e,i)=>{
-    const li=document.createElement("li");
-    li.innerHTML=`
-      <span>${e.n}</span>
-      <button class="delete">X</button>
-    `;
-    li.querySelector("span").onclick=()=>window.open(e.u,"_blank");
-    li.querySelector(".delete").onclick=()=>{
-      h.splice(i,1);
-      localStorage.setItem("history",JSON.stringify(h));
-      loadHistory();
-    };
-    historyEl.appendChild(li);
-  });
-}
-
-function clearHistory(){
-  localStorage.removeItem("history");
-  loadHistory();
-}
-
-function changeTheme(){
-  const val=themeSelect.value;
-  localStorage.setItem("theme",val);
-  applyTheme();
-}
-
 function applyTheme(){
-  const val=localStorage.getItem("theme")||"system";
-  themeSelect.value=val;
-
-  if(val==="dark"){
-    document.body.classList.add("dark");
-  }else if(val==="light"){
-    document.body.classList.remove("dark");
-  }else{
-    if(window.matchMedia("(prefers-color-scheme: dark)").matches){
-      document.body.classList.add("dark");
-    }else{
-      document.body.classList.remove("dark");
-    }
-  }
+const mode=localStorage.getItem("themeMode")||"system";
+document.body.classList.remove("light");
+if(mode==="light")document.body.classList.add("light");
+if(mode==="system"&&
+window.matchMedia("(prefers-color-scheme: light)").matches)
+document.body.classList.add("light");
 }
 
+/* Hintergrund */
+function setBg(e){
+const r=new FileReader();
+r.onload=()=>{
+document.body.style.backgroundImage=`url(${r.result})`;
+localStorage.setItem("bg",r.result);
+};
+r.readAsDataURL(e.target.files[0]);
+}
+function resetBg(){
+localStorage.removeItem("bg");
+document.body.style.backgroundImage="";
+}
+
+/* Init */
 loadSites();
 loadHistory();
 applyTheme();
+if(localStorage.getItem("bg"))
+document.body.style.backgroundImage=`url(${localStorage.getItem("bg")})`;
 </script>
 
 </body>
